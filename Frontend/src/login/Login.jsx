@@ -19,7 +19,7 @@ const Login = () => {
     e.preventDefault();
     setError('');
     try {
-      const res = await axios.post('http://localhost:8080/api/login', formData);
+      const res = await axios.post('https://specscloud-1.onrender.com/api/login', formData);
       if (res.status === 200) {
         localStorage.setItem('loggedIn', 'true');
         toast.success('Signup successful!');

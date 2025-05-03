@@ -3,14 +3,24 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+
 const Catalogue = () => {
   const [files, setFiles] = useState([]);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [uploadProgress, setUploadProgress] = useState(0);
 
+  const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
+  const [renameFileId, setRenameFileId] = useState(null);
+  const [renameFileName, setRenameFileName] = useState('');
+
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+const [viewFileUrl, setViewFileUrl] = useState('');
+const [viewFileType, setViewFileType] = useState('');
+
+
   const fetchFiles = async () => {
     try {
-      const res = await axios.get('http://localhost:8080/api/catalogue/files');
+      const res = await axios.get('https://specscloud-1.onrender.com/api/catalogue/files');
       setFiles(res.data);
     } catch (error) {
       console.error(error.message);
@@ -38,7 +48,7 @@ const Catalogue = () => {
     }
 
     try {
-      await axios.post('http://localhost:8080/api/catalogue/upload', formData, {
+      await axios.post('https://specscloud-1.onrender.com/api/catalogue/upload', formData, {
         onUploadProgress: (progressEvent) => {
           const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
           setUploadProgress(percent);
@@ -56,7 +66,7 @@ const Catalogue = () => {
 
   const handleDownload = async (id, name) => {
     try {
-      const res = await axios.get(`http://localhost:8080/api/catalogue/download/${id}`, {
+      const res = await axios.get(`https://specscloud-1.onrender.com/catalogue/download/${id}`, {
         responseType: 'blob', // Important for downloading files
       });
 
@@ -79,7 +89,7 @@ const Catalogue = () => {
     if (!window.confirm('Are you sure you want to delete this file?')) return;
 
     try {
-      await axios.delete(`http://localhost:8080/api/catalogue/delete/${id}`);
+      await axios.delete(`https://specscloud-1.onrender.com/api/catalogue/delete/${id}`);
       toast.success('File deleted successfully');
       fetchFiles(); // Refresh the table
     } catch (error) {
@@ -88,22 +98,29 @@ const Catalogue = () => {
     }
   };
 
-  const handleRename = async (file) => {
-    const newName = window.prompt('Enter new file name:', file.fileName);
-    if (!newName || newName.trim() === '' || newName === file.fileName) {
-      return; // Cancel if no change
-    }
-  
+  const openRenameModal = (file) => {
+    setRenameFileId(file._id);
+    setRenameFileName(file.fileName);
+    setIsRenameModalOpen(true);
+  };
+
+  const handleView = async (id, fileType) => {
     try {
-      await axios.put(`http://localhost:8080/api/catalogue/rename/${file._id}`, { newName });
-      toast.success('File renamed successfully');
-      fetchFiles(); // Refresh file list
+      const res = await axios.get(`https://specscloud-1.onrender.com/api/catalogue/download/${id}`, {
+        responseType: 'blob',
+      });
+  
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      setViewFileUrl(url);
+      setViewFileType(fileType);
+      setIsViewModalOpen(true);
     } catch (error) {
       console.error(error.message);
-      toast.error('Rename failed');
+      toast.error('Failed to load file for viewing');
     }
   };
   
+
 
   return (
     <div className="p-6 max-w-5xl mx-auto bg-white shadow-md rounded-lg">
@@ -138,8 +155,9 @@ const Catalogue = () => {
       </h3>
 
       <div className="overflow-x-auto">
+      <div className="max-h-[400px] overflow-y-auto border border-gray-300 rounded">
         <table className="min-w-full border border-gray-200 text-sm">
-          <thead className="bg-indigo-600 text-white">
+        <thead className="bg-indigo-600 text-white sticky top-0 z-10">
             <tr>
               <th className="py-2 px-4 text-left">File Name</th>
               <th className="py-2 px-4 text-left">File Type</th>
@@ -158,17 +176,25 @@ const Catalogue = () => {
               files.map((file) => (
                 <tr key={file._id} className="border-b">
                   <td className="py-2 px-4 max-w-xs truncate cursor-pointer" title={file.fileName}>
-  {file.fileName}
-</td>
+                    {file.fileName}
+                  </td>
                   <td className="py-2 px-4">{file.fileType || 'N/A'}</td>
                   <td className="py-2 px-4">{(file.fileSize / 1024).toFixed(2)}</td>
                   <td className="py-2 px-4 space-x-2">
                   <button
-  onClick={() => handleRename(file)}
-  className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
+  onClick={() => handleView(file._id, file.fileType)}
+  className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
 >
-  Rename
+  View
 </button>
+
+                    <button
+                      onClick={() => openRenameModal(file)}
+                      className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
+                    >
+                      Rename
+                    </button>
+
 
                     <button
                       onClick={() => handleDownload(file._id, file.fileName)}
@@ -188,6 +214,94 @@ const Catalogue = () => {
             )}
           </tbody>
         </table>
+        </div>
+
+        {isRenameModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-80">
+              <h2 className="text-xl font-semibold mb-4">Rename File</h2>
+
+              <input
+                type="text"
+                value={renameFileName}
+                onChange={(e) => setRenameFileName(e.target.value)}
+                className="border border-gray-300 rounded w-full px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+
+              <div className="flex justify-end space-x-2">
+                <button
+                  onClick={() => setIsRenameModalOpen(false)}
+                  className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={async () => {
+                    try {
+                      if (!renameFileName.trim()) {
+                        toast.error('File name cannot be empty');
+                        return;
+                      }
+
+                      await axios.put(`https://specscloud-1.onrender.com/api/catalogue/rename/${renameFileId}`, {
+                        newName: renameFileName,
+                      });
+
+                      toast.success('File renamed successfully!');
+                      setIsRenameModalOpen(false);
+                      fetchFiles();
+                    } catch (error) {
+                      console.error(error.message);
+                      toast.error('Rename failed');
+                    }
+                  }}
+                  className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
+                >
+                  Rename
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+{isViewModalOpen && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <div className="bg-white p-4 rounded-lg shadow-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-semibold">View File</h2>
+        <button
+          onClick={() => {
+            setIsViewModalOpen(false);
+            window.URL.revokeObjectURL(viewFileUrl); // Clean memory
+          }}
+          className="text-red-500 text-xl font-bold hover:text-red-700"
+        >
+          ×
+        </button>
+      </div>
+
+      {/* View File Here */}
+      {viewFileType.startsWith('image/') && (
+        <img src={viewFileUrl} alt="file" className="w-full h-auto" />
+      )}
+
+{viewFileType === 'application/pdf' && (
+  <iframe
+    src={viewFileUrl}
+    title="PDF Viewer"
+    type="application/pdf"
+    className="w-full h-[80vh]"
+  />
+)}
+
+
+      {viewFileType.includes('presentation') || viewFileType.includes('powerpoint') ? (
+        <iframe src={`https://view.officeapps.live.com/op/embed.aspx?src=${viewFileUrl}`} className="w-full h-[80vh]" title="PPT Viewer"></iframe>
+      ) : null}
+    </div>
+  </div>
+)}
+
       </div>
     </div>
   );

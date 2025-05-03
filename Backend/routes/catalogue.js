@@ -42,16 +42,16 @@ router.get('/download/:id', async (req, res) => {
     const file = await Catalogue.findById(req.params.id);
     if (!file) return res.status(404).json({ message: 'File not found' });
 
-    res.set({
-      'Content-Type': file.fileType,
-      'Content-Disposition': `attachment; filename="${file.fileName}"`,
-    });
+    res.setHeader('Content-Type', file.fileType);
+    res.setHeader('Content-Disposition', `inline; filename="${file.fileName}"`); // 🔥 inline, not attachment
+
     res.send(file.fileData);
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ message: 'Download failed' });
   }
 });
+
 
 // Delete a file
 router.delete('/delete/:id', async (req, res) => {
