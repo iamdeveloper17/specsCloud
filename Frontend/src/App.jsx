@@ -1,15 +1,15 @@
 // App.jsx
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import FrontPage from "./login/FrontPage";
 import Signup from "./login/Signup";
 import Login from "./login/Login";
 import MainLayout from "./layout/MainLayout";
 import User from "./Pages/User";
 import Catalogue from "./Pages/Catalogue";
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import Dashboard from './Pages/DashBoard'
+import DashBoard from "./Pages/DashBoard";
 
 const App = () => {
   return (
@@ -22,7 +22,7 @@ const App = () => {
 
         {/* Layout with Nested Routes */}
         <Route path="/" element={<MainLayout />}>
-          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="dashboard" element={<DashBoard />} />
           <Route path="users" element={<User />} />
           <Route path="catalogue" element={<Catalogue />} />
         </Route>
