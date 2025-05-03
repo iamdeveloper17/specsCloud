@@ -5,11 +5,11 @@ import FrontPage from "./login/FrontPage";
 import Signup from "./login/Signup";
 import Login from "./login/Login";
 import MainLayout from "./layout/MainLayout";
-import Dashboard from "./Pages/DashBoard";
 import User from "./Pages/User";
 import Catalogue from "./Pages/Catalogue";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Dashboard from './Pages/DashBoard'
 
 const App = () => {
   return (
