@@ -9,14 +9,15 @@ const upload = multer({ storage: storage });
 // Upload files
 router.post('/upload', upload.array('files'), async (req, res) => {
   try {
-    const { userId } = req.body; // 🧠 get userId from body (frontend must send it during upload)
+    const { userId, userEmail } = req.body; // 🧠 Receive both userId and email from frontend
 
     const filesData = req.files.map(file => ({
       fileName: file.originalname,
       fileType: file.mimetype,
       fileSize: file.size,
       fileData: file.buffer,
-      uploadedBy: userId, // 📦 Save uploadedBy field
+      uploadedById: userId,     // 🔥 Save userId
+      uploadedByEmail: userEmail, // 🔥 Save userEmail
     }));
 
     await Catalogue.insertMany(filesData);
@@ -27,6 +28,7 @@ router.post('/upload', upload.array('files'), async (req, res) => {
     res.status(500).json({ message: 'Upload failed' });
   }
 });
+
 
 // Fetch file list (filtered by user)
 router.get('/files', async (req, res) => {

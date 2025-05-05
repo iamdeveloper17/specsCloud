@@ -1,10 +1,17 @@
 const mongoose = require('mongoose');
 
 const catalogueSchema = new mongoose.Schema({
-  fileName: { type: String, required: true },
-  fileType: { type: String, required: true },
-  fileSize: { type: Number, required: true },
-  fileData: { type: Buffer, required: false }, // 💥 save file binary
-}, { timestamps: true });
+  fileName: String,
+  fileType: String,
+  fileSize: Number,
+  fileData: Buffer,
+  uploadedById: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  },
+  uploadedByEmail: {
+    type: String,
+  }
+});
 
 module.exports = mongoose.model('Catalogue', catalogueSchema);

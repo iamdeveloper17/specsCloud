@@ -43,13 +43,15 @@ const Catalogue = () => {
       return;
     }
   
-    const userId = localStorage.getItem('userId'); // 👈 get logged-in user's ID
+    const userId = localStorage.getItem('userId');
+    const userEmail = localStorage.getItem('userEmail'); // 👈 Save and get userEmail during login too
   
     const formData = new FormData();
     for (let file of selectedFiles) {
       formData.append('files', file);
     }
-    formData.append('userId', userId); // 📦 send userId along with files
+    formData.append('userId', userId);
+    formData.append('userEmail', userEmail); // 👈 send userEmail too
   
     try {
       await axios.post('https://specscloud-1.onrender.com/api/catalogue/upload', formData, {
@@ -63,7 +65,7 @@ const Catalogue = () => {
       });
   
       toast.success('Files uploaded successfully!');
-      fetchFiles(); // Refresh list
+      fetchFiles();
       setSelectedFiles([]);
       setUploadProgress(0);
     } catch (error) {

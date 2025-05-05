@@ -23,13 +23,15 @@ const Login = () => {
   
       if (res.status === 200) {
         const user = res.data.user;
-  
+      
         localStorage.setItem('loggedIn', 'true');
-        localStorage.setItem('userId', user._id); // 👈 NOW this will work!
-  
+        localStorage.setItem('userId', user._id);
+        localStorage.setItem('userEmail', user.email); // 👈 Save user email also
+      
         toast.success('Login successful!');
         navigate('/dashboard');
       }
+      
     } catch (err) {
       toast.error(err.response?.data?.message || 'Login failed');
     }
