@@ -7,9 +7,9 @@ import FrontPage from "./login/FrontPage";
 import Signup from "./login/Signup";
 import Login from "./login/Login";
 import MainLayout from "./layout/MainLayout";
-import DashBoard from "./Pages/DashBoard";
-import User from "./Pages/User";
-import Catalogue from "./Pages/Catalogue";
+import DashBoard from "./Pages/DashBoard"
+import User from "./Pages/User"
+import Catalogue from "./Pages/Catalogue"
 
 const App = () => {
   return (
