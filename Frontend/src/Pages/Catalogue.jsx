@@ -17,13 +17,11 @@ const Catalogue = () => {
   const [viewFileUrl, setViewFileUrl] = useState('');
   const [viewFileType, setViewFileType] = useState('');
 
-
   const fetchFiles = async () => {
     const userId = localStorage.getItem('userId');
     const res = await axios.get(`https://specscloud-1.onrender.com/api/catalogue/files?userId=${userId}`);
     setFiles(res.data);
   };
-  
   
   useEffect(() => {
     fetchFiles();

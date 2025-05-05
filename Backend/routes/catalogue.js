@@ -5,12 +5,11 @@ const Catalogue = require('../models/Catalogue'); // Correct model
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
-const files = await Catalogue.find({}, 'fileName fileType fileSize');
 
 // Upload files
 router.post('/upload', upload.array('files'), async (req, res) => {
   try {
-    const { userId, userEmail } = req.body; // 🧠 Receive both userId and email from frontend
+    const { userId, userEmail } = req.body; // 🧠 Receive both userId and userEmail from frontend
 
     const filesData = req.files.map(file => ({
       fileName: file.originalname,
@@ -30,9 +29,7 @@ router.post('/upload', upload.array('files'), async (req, res) => {
   }
 });
 
-
 // Fetch file list (filtered by user)
-// Fetch file list (only user's files)
 router.get('/files', async (req, res) => {
   const { userId } = req.query;
 
