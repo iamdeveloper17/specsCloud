@@ -3,19 +3,23 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { FaHome, FaUser, FaFolderOpen, FaSignOutAlt } from 'react-icons/fa';
 import logo from '../images/logo.png';
 
-const navItems = [
-  { name: 'Dashboard', icon: <FaHome />, path: '/dashboard' },
-  { name: 'Users', icon: <FaUser />, path: '/users' },
-  { name: 'Catalogue', icon: <FaFolderOpen />, path: '/catalogue' },
-];
-
 const Sidebar = ({ onClose }) => {
   const navigate = useNavigate();
+  const isAdmin = localStorage.getItem('isAdmin') === 'true'; // 🔥 Detect Admin
 
-  // Handle logout
+  const navItems = [
+    { name: 'Dashboard', icon: <FaHome />, path: '/dashboard' },
+    { name: 'Catalogue', icon: <FaFolderOpen />, path: '/catalogue' },
+  ];
+
+  if (isAdmin) {
+    navItems.push({ name: 'Users', icon: <FaUser />, path: '/users' });
+    navItems.push({ name: 'All Files', icon: <FaFolderOpen />, path: '/admin-catalogue' });
+  }
+
   const handleLogout = () => {
-    localStorage.removeItem('loggedIn');  // ✅ Remove login mark
-    navigate('/');                   // ✅ Go back to login
+    localStorage.clear(); // ✅ Better: clear everything
+    navigate('/');
   };
 
   return (

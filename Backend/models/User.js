@@ -16,6 +16,10 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
+  },
+  isAdmin: {              // 🛡️ New field
+    type: Boolean,
+    default: false,        // 🚀 Normal users = false
   }
 }, { timestamps: true });
 

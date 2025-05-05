@@ -26,11 +26,18 @@ const Login = () => {
       
         localStorage.setItem('loggedIn', 'true');
         localStorage.setItem('userId', user._id);
-        localStorage.setItem('userEmail', user.email); // 👈 Save user email also
+        localStorage.setItem('userEmail', user.email);
+        localStorage.setItem('isAdmin', user.isAdmin ? 'true' : 'false'); // 👈 Save isAdmin
       
         toast.success('Login successful!');
-        navigate('/dashboard');
-      }
+      
+        // Navigate based on role
+        if (user.isAdmin) {
+          navigate('/admin-dashboard'); // 🔥 Admin dashboard
+        } else {
+          navigate('/dashboard'); // 🧠 Normal user dashboard
+        }
+      }      
       
     } catch (err) {
       toast.error(err.response?.data?.message || 'Login failed');
