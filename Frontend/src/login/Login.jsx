@@ -20,15 +20,20 @@ const Login = () => {
     setError('');
     try {
       const res = await axios.post('https://specscloud-1.onrender.com/api/login', formData);
+  
       if (res.status === 200) {
+        const user = res.data.user;
+  
         localStorage.setItem('loggedIn', 'true');
-        toast.success('Signup successful!');
+        localStorage.setItem('userId', user._id); // 👈 NOW this will work!
+  
+        toast.success('Login successful!');
         navigate('/dashboard');
-      }      
+      }
     } catch (err) {
       toast.error(err.response?.data?.message || 'Login failed');
     }
-  };
+  };  
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-indigo-700 to-purple-800 p-4">

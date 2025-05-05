@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
-const bcrypt = require('bcryptjs'); // Add this at top
+const bcrypt = require('bcryptjs');
 
+// Signup
 router.post('/signup', async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -16,7 +17,6 @@ router.post('/signup', async (req, res) => {
       return res.status(400).json({ message: "User already exists with this email" });
     }
 
-    // Hash (encrypt) the password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
@@ -30,30 +30,38 @@ router.post('/signup', async (req, res) => {
   }
 });
 
-// POST /api/login
+// Login
 router.post('/login', async (req, res) => {
-    const { email, password } = req.body;
-  
-    try {
-      if (!email || !password) {
-        return res.status(400).json({ message: "All fields are required" });
-      }
-  
-      const user = await User.findOne({ email });
-      if (!user) {
-        return res.status(400).json({ message: "No user found with this email" });
-      }
-  
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        return res.status(400).json({ message: "Incorrect password" });
-      }
-  
-      res.status(200).json({ message: "Login successful" });
-    } catch (err) {
-      console.error(err.message);
-      res.status(500).json({ message: "Server error" });
+  const { email, password } = req.body;
+
+  try {
+    if (!email || !password) {
+      return res.status(400).json({ message: "All fields are required" });
     }
-  });
-  
-  module.exports = router;
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: "No user found with this email" });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Incorrect password" });
+    }
+
+    res.status(200).json({
+      message: "Login successful",
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email
+      }
+    });
+
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+module.exports = router;
