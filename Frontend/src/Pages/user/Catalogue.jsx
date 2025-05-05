@@ -131,12 +131,21 @@ const Catalogue = () => {
     <div className="p-6 max-w-5xl mx-auto bg-white shadow-md rounded-lg">
       <h2 className="text-2xl font-bold text-indigo-700 mb-4">Upload Catalog Files</h2>
 
-      <input
-        type="file"
-        multiple
-        onChange={handleFileChange}
-        className="block w-full border border-gray-300 rounded px-4 py-2 mb-4 text-sm"
-      />
+      <div className="relative mb-4">
+  <input
+    type="file"
+    id="fileInput"
+    multiple
+    onChange={handleFileChange}
+    className="hidden"
+  />
+  <label
+    htmlFor="fileInput"
+    className="block w-full bg-gray-200 text-gray-700 border border-gray-300 rounded px-4 py-2 text-center cursor-pointer hover:bg-gray-300 transition"
+  >
+    Choose Files
+  </label>
+</div>
 
       <button
         onClick={handleUpload}
