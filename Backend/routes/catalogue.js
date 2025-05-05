@@ -5,6 +5,7 @@ const Catalogue = require('../models/Catalogue'); // Correct model
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
+const files = await Catalogue.find({}, 'fileName fileType fileSize');
 
 // Upload files
 router.post('/upload', upload.array('files'), async (req, res) => {
@@ -31,16 +32,22 @@ router.post('/upload', upload.array('files'), async (req, res) => {
 
 
 // Fetch file list (filtered by user)
+// Fetch file list (only user's files)
 router.get('/files', async (req, res) => {
   const { userId } = req.query;
 
   try {
-    let files;
+    let files = [];
+
     if (userId) {
-      files = await Catalogue.find({ uploadedBy: userId }, 'fileName fileType fileSize'); // 🔥 Only user's files
+      files = await Catalogue.find(
+        { uploadedById: userId },         // 🧠 Only find files uploaded by this user
+        'fileName fileType fileSize'       // 🔥 Select only required fields
+      );
     } else {
-      files = await Catalogue.find({}, 'fileName fileType fileSize'); // fallback
+      files = await Catalogue.find({}, 'fileName fileType fileSize');
     }
+
     res.status(200).json(files);
   } catch (error) {
     console.error(error.message);

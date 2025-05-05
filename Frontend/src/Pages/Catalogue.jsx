@@ -19,15 +19,11 @@ const Catalogue = () => {
 
 
   const fetchFiles = async () => {
-    try {
-      const userId = localStorage.getItem('userId'); // 🧠 Get user ID
-      const res = await axios.get(`https://specscloud-1.onrender.com/api/catalogue/files?userId=${userId}`);
-      setFiles(res.data);
-    } catch (error) {
-      console.error(error.message);
-      toast.error('Failed to fetch files');
-    }
+    const userId = localStorage.getItem('userId');
+    const res = await axios.get(`https://specscloud-1.onrender.com/api/catalogue/files?userId=${userId}`);
+    setFiles(res.data);
   };
+  
   
   useEffect(() => {
     fetchFiles();
