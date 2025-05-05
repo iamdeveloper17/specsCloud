@@ -5,20 +5,20 @@ import logo from '../images/logo.png';
 
 const Sidebar = ({ onClose }) => {
   const navigate = useNavigate();
-  const isAdmin = localStorage.getItem('isAdmin') === 'true'; // 🔥 Detect Admin
+  const isAdmin = localStorage.getItem('isAdmin') === 'true'; // 🔥
 
-  const navItems = [
+  // Different navItems based on user or admin
+  const navItems = isAdmin ? [
+    { name: 'Admin Dashboard', icon: <FaHome />, path: '/admin-dashboard' },
+    { name: 'Users', icon: <FaUser />, path: '/admin-users' },
+    { name: 'All Files', icon: <FaFolderOpen />, path: '/admin-catalogue' },
+  ] : [
     { name: 'Dashboard', icon: <FaHome />, path: '/dashboard' },
     { name: 'Catalogue', icon: <FaFolderOpen />, path: '/catalogue' },
   ];
 
-  if (isAdmin) {
-    navItems.push({ name: 'Users', icon: <FaUser />, path: '/users' });
-    navItems.push({ name: 'All Files', icon: <FaFolderOpen />, path: '/admin-catalogue' });
-  }
-
   const handleLogout = () => {
-    localStorage.clear(); // ✅ Better: clear everything
+    localStorage.clear(); 
     navigate('/');
   };
 

@@ -36,7 +36,7 @@ const App = () => {
           {/* Admin Routes */}
           <Route path="admin-dashboard" element={<AdminDashboard />} />
           <Route path="admin-catalogue" element={<AdminCatalogue />} />
-          <Route path="users" element={<AdminUser />} />
+          <Route path="admin-users" element={<AdminUser />} />
         </Route>
 
         {/* 404 Page */}
