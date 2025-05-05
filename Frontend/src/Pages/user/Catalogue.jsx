@@ -22,7 +22,7 @@ const Catalogue = () => {
     const res = await axios.get(`https://specscloud-1.onrender.com/api/catalogue/files?userId=${userId}`);
     setFiles(res.data);
   };
-  
+
   useEffect(() => {
     fetchFiles();
   }, []);
@@ -38,14 +38,14 @@ const Catalogue = () => {
     }
   
     const userId = localStorage.getItem('userId');
-    const userEmail = localStorage.getItem('userEmail'); // 👈 Save and get userEmail during login too
+    const userEmail = localStorage.getItem('userEmail');
   
     const formData = new FormData();
     for (let file of selectedFiles) {
       formData.append('files', file);
     }
     formData.append('userId', userId);
-    formData.append('userEmail', userEmail); // 👈 send userEmail too
+    formData.append('userEmail', userEmail);
   
     try {
       await axios.post('https://specscloud-1.onrender.com/api/catalogue/upload', formData, {
@@ -59,16 +59,17 @@ const Catalogue = () => {
       });
   
       toast.success('Files uploaded successfully!');
-      fetchFiles();
-      setSelectedFiles([]);
+      fetchFiles(); // Refresh table
+      setSelectedFiles([]); // Clear file selection
+      document.getElementById('fileInput').value = ''; // 🧹 Important: Clear hidden input
       setUploadProgress(0);
+  
     } catch (error) {
       console.error(error.message);
       toast.error('Upload failed');
     }
   };
   
-
   const handleDownload = async (id, name) => {
     try {
       const res = await axios.get(`https://specscloud-1.onrender.com/catalogue/download/${id}`, {
@@ -132,20 +133,20 @@ const Catalogue = () => {
       <h2 className="text-2xl font-bold text-indigo-700 mb-4">Upload Catalog Files</h2>
 
       <div className="relative mb-4">
-  <input
-    type="file"
-    id="fileInput"
-    multiple
-    onChange={handleFileChange}
-    className="hidden"
-  />
-  <label
-    htmlFor="fileInput"
-    className="block w-full bg-gray-200 text-gray-700 border border-gray-300 rounded px-4 py-2 text-center cursor-pointer hover:bg-gray-300 transition"
-  >
-    Choose Files
-  </label>
-</div>
+        <input
+          type="file"
+          id="fileInput"
+          multiple
+          onChange={handleFileChange}
+          className="hidden"
+        />
+        <label
+          htmlFor="fileInput"
+          className="block w-full bg-gray-200 text-gray-700 border border-gray-300 rounded px-4 py-2 text-center cursor-pointer hover:bg-gray-300 transition"
+        >
+          Choose Files
+        </label>
+      </div>
 
       <button
         onClick={handleUpload}
