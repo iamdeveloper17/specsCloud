@@ -9,6 +9,8 @@ const Catalogue = () => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [uploadProgress, setUploadProgress] = useState(0);
 
+  const [selectedFileNames, setSelectedFileNames] = useState([]);
+
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
   const [renameFileId, setRenameFileId] = useState(null);
   const [renameFileName, setRenameFileName] = useState('');
@@ -28,8 +30,14 @@ const Catalogue = () => {
   }, []);
 
   const handleFileChange = (e) => {
-    setSelectedFiles(e.target.files);
+    const files = Array.from(e.target.files);
+    setSelectedFiles(files);
+  
+    // Map file names
+    const fileNames = files.map(file => file.name);
+    setSelectedFileNames(fileNames);
   };
+  
 
   const handleUpload = async () => {
     if (selectedFiles.length === 0) {
@@ -63,6 +71,7 @@ const Catalogue = () => {
       setSelectedFiles([]); // Clear file selection
       document.getElementById('fileInput').value = ''; // 🧹 Important: Clear hidden input
       setUploadProgress(0);
+      setSelectedFileNames([]); // 🔥 clear names after upload
   
     } catch (error) {
       console.error(error.message);
@@ -146,6 +155,11 @@ const Catalogue = () => {
         >
           Choose Files
         </label>
+        {selectedFileNames.length > 0 && (
+    <div className="mt-2 text-sm text-gray-600 text-center">
+      {selectedFileNames.join(', ')}
+    </div>
+  )}
       </div>
 
       <button
