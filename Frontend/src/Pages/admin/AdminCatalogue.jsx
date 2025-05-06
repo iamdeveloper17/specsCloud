@@ -4,6 +4,9 @@ import { toast } from 'react-toastify';
 
 const AdminCatalogue = () => {
   const [files, setFiles] = useState([]);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [viewFileUrl, setViewFileUrl] = useState('');
+  const [viewFileType, setViewFileType] = useState('');
 
   const fetchAllFiles = async () => {
     try {
@@ -49,6 +52,31 @@ const AdminCatalogue = () => {
     }
   };
 
+  const handleView = async (id, fileType) => {
+    try {
+      const res = await axios.get(`https://specscloud-1.onrender.com/api/catalogue/download/${id}`, {
+        responseType: 'blob',
+      });
+
+      let blob;
+      if (fileType === 'application/pdf') {
+        blob = new Blob([res.data], { type: 'application/pdf' }); // 🧡 Force type
+      } else if (fileType.startsWith('image/')) {
+        blob = new Blob([res.data], { type: fileType });
+      } else {
+        blob = new Blob([res.data]);
+      }
+
+      const url = window.URL.createObjectURL(blob);
+      setViewFileUrl(url);
+      setViewFileType(fileType);
+      setIsViewModalOpen(true);
+    } catch (error) {
+      console.error(error.message);
+      toast.error('Failed to load file for viewing');
+    }
+  };
+
   useEffect(() => {
     fetchAllFiles();
   }, []);
@@ -85,6 +113,12 @@ const AdminCatalogue = () => {
                     <td className="py-2 px-4">{(file.fileSize / 1024).toFixed(2)}</td>
                     <td className="py-2 px-4 space-x-2">
                       <button
+                        onClick={() => handleView(file._id, file.fileType)}
+                        className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                      >
+                        View
+                      </button>
+                      <button
                         onClick={() => handleDownload(file._id, file.fileName)}
                         className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
                       >
@@ -104,6 +138,52 @@ const AdminCatalogue = () => {
           </table>
         </div>
       </div>
+
+      {/* View Modal */}
+      {isViewModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-4 rounded-lg shadow-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">View File</h2>
+              <button
+                onClick={() => {
+                  setIsViewModalOpen(false);
+                  window.URL.revokeObjectURL(viewFileUrl); // 🧹 Clean memory
+                  setViewFileUrl('');
+                  setViewFileType('');
+                }}
+                className="text-red-500 text-xl font-bold hover:text-red-700"
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Display content based on file type */}
+            {/* Display content based on file type */}
+{viewFileType.startsWith('image/') && (
+  <img src={viewFileUrl} alt="file" className="w-full h-auto" />
+)}
+
+{viewFileType === 'application/pdf' && (
+  <iframe
+    src={viewFileUrl}
+    title="PDF Viewer"
+    type="application/pdf"
+    className="w-full h-[80vh]"
+  />
+)}
+
+{(viewFileType.includes('word') || viewFileType.includes('presentation') || viewFileType.includes('excel')) && (
+  <iframe
+    src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(viewFileUrl)}`}
+    title="Office File Viewer"
+    className="w-full h-[80vh]"
+  />
+)}
+
+          </div>
+        </div>
+      )}
     </div>
   );
 };
