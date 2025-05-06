@@ -1,37 +1,29 @@
+// src/components/Sidebar.jsx
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { FaHome, FaUser, FaFolderOpen, FaSignOutAlt } from 'react-icons/fa';
+import { FaHome, FaFolderOpen, FaSignOutAlt } from 'react-icons/fa'; // ✨ No user icon here
 import logo from '../images/logo.png';
 
 const Sidebar = ({ onClose }) => {
   const navigate = useNavigate();
-  const isAdmin = localStorage.getItem('isAdmin') === 'true'; // 🔥
 
-  // Different navItems based on user or admin
-  const navItems = isAdmin ? [
-    { name: 'Admin Dashboard', icon: <FaHome />, path: '/admin-dashboard' },
-    { name: 'Users', icon: <FaUser />, path: '/admin-users' },
-    { name: 'All Files', icon: <FaFolderOpen />, path: '/admin-catalogue' },
-  ] : [
+  const navItems = [
     { name: 'Dashboard', icon: <FaHome />, path: '/dashboard' },
     { name: 'Catalogue', icon: <FaFolderOpen />, path: '/catalogue' },
   ];
 
   const handleLogout = () => {
-    localStorage.clear(); 
+    localStorage.clear();
     navigate('/');
   };
 
   return (
     <div className="w-64 min-h-screen bg-zinc-300 text-white flex flex-col justify-between">
-      {/* Top Section */}
       <div>
-        {/* Logo */}
         <div className="flex items-center justify-center px-4 py-3">
           <img src={logo} alt="Logo" className="w-28" />
         </div>
 
-        {/* Navigation */}
         <nav className="p-4 space-y-2">
           {navItems.map((item) => (
             <NavLink
@@ -51,7 +43,6 @@ const Sidebar = ({ onClose }) => {
         </nav>
       </div>
 
-      {/* Logout Section */}
       <div className="p-4">
         <button
           onClick={handleLogout}
