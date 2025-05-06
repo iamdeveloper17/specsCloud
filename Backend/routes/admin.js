@@ -9,17 +9,19 @@ router.get('/users', async (req, res) => {
     const users = await User.find();
 
     // Count uploaded files for each user
-    const usersWithFileCount = await Promise.all(users.map(async (user) => {
-      const fileCount = await Catalogue.countDocuments({ userId: user._id });
-      return {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        totalFiles: fileCount,
-      };
-    }));
-
-    res.status(200).json(usersWithFileCount);
+    const usersWithFiles = await Promise.all(
+        users.map(async (user) => {
+          const totalFiles = await Catalogue.countDocuments({ uploadedById: user._id });
+          return {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            totalFiles,
+          };
+        })
+      );
+      
+      res.status(200).json(usersWithFiles);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Failed to fetch users' });
