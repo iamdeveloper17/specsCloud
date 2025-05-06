@@ -18,15 +18,16 @@ import AdminCatalogue from "./Pages/admin/AdminCatalogue";  // 🛑 Create this 
 import AdminDashboard from "./Pages/admin/AdminDashboard";  // 🛑 Create this page
 import AdminUser from "./Pages/admin/AdminUser";  // 🛑 Create this page (Manage users)
 import ProtectedRoute from "./ProtectedRoute";
+import PublicRoute from "./PublicRoute";
 
 const App = () => {
   return (
     <Router>
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={<FrontPage />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/" element={<PublicRoute><FrontPage /></PublicRoute>} />
+        <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
+        <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
 
         {/* Main Layout (Sidebar + Topbar) */}
         <Route path="/" element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>

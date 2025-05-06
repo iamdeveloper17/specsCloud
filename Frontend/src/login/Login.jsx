@@ -47,7 +47,6 @@ const Login = () => {
     }
   };
 
-
   return (
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-indigo-700 to-purple-800 p-4">
       <form
