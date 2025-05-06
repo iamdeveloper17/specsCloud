@@ -1,3 +1,4 @@
+// src/App.jsx
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ToastContainer } from 'react-toastify';
@@ -14,11 +15,14 @@ import DashBoard from "./Pages/user/Dashboard";
 import Catalogue from "./Pages/user/Catalogue";
 
 // Admin Pages
-import AdminCatalogue from "./Pages/admin/AdminCatalogue";  // 🛑 Create this page
-import AdminDashboard from "./Pages/admin/AdminDashboard";  // 🛑 Create this page
-import AdminUser from "./Pages/admin/AdminUser";  // 🛑 Create this page (Manage users)
-import ProtectedRoute from "./ProtectedRoute";
-import PublicRoute from "./PublicRoute";
+import AdminCatalogue from "./Pages/admin/AdminCatalogue";
+import AdminDashboard from "./Pages/admin/AdminDashboard";
+import AdminUser from "./Pages/admin/AdminUser";
+
+// Guards
+import ProtectedRoute from "./components/ProtectedRoute";
+import PublicRoute from "./components/PublicRoute";
+import AdminRoute from "./components/AdminRoute"; // 👈 Import this
 
 const App = () => {
   return (
@@ -36,9 +40,15 @@ const App = () => {
           <Route path="catalogue" element={<Catalogue />} />
 
           {/* Admin Routes */}
-          <Route path="admin-dashboard" element={<AdminDashboard />} />
-          <Route path="admin-catalogue" element={<AdminCatalogue />} />
-          <Route path="admin-users" element={<AdminUser />} />
+          <Route path="admin-dashboard" element={
+            <AdminRoute><AdminDashboard /></AdminRoute> // 👈 Correct Admin Guard
+          } />
+          <Route path="admin-catalogue" element={
+            <AdminRoute><AdminCatalogue /></AdminRoute> // 👈
+          } />
+          <Route path="admin-users" element={
+            <AdminRoute><AdminUser /></AdminRoute> // 👈
+          } />
         </Route>
 
         {/* 404 Page */}
