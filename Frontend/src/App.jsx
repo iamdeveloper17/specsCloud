@@ -17,6 +17,7 @@ import Catalogue from "./Pages/user/Catalogue";
 import AdminCatalogue from "./Pages/admin/AdminCatalogue";  // 🛑 Create this page
 import AdminDashboard from "./Pages/admin/AdminDashboard";  // 🛑 Create this page
 import AdminUser from "./Pages/admin/AdminUser";  // 🛑 Create this page (Manage users)
+import ProtectedRoute from "./ProtectedRoute";
 
 const App = () => {
   return (
@@ -28,7 +29,7 @@ const App = () => {
         <Route path="/login" element={<Login />} />
 
         {/* Main Layout (Sidebar + Topbar) */}
-        <Route path="/" element={<MainLayout />}>
+        <Route path="/" element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
           {/* User Routes */}
           <Route path="dashboard" element={<DashBoard />} />
           <Route path="catalogue" element={<Catalogue />} />

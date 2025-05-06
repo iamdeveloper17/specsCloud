@@ -10,6 +10,7 @@ const Signup = () => {
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false); // 🔥 New loading state
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -18,14 +19,19 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setLoading(true); // 🔥 Start loading
+
     try {
       const res = await axios.post('https://specscloud-1.onrender.com/api/signup', formData);
+
       if (res.status === 201) {
         toast.success('Signup successful!');
         navigate('/login');
       }
     } catch (err) {
       toast.error(err.response?.data?.message || 'Signup failed');
+    } finally {
+      setLoading(false); // 🔥 Stop loading after submit
     }
   };
 
@@ -57,39 +63,65 @@ const Signup = () => {
           required
           className="w-full px-4 py-2 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
         />
+        
         <div className="relative mb-6">
-  <input
-    type={showPassword ? "text" : "password"}
-    name="password"
-    placeholder="Password"
-    value={formData.password}
-    onChange={handleChange}
-    required
-    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 pr-12"
-  />
-  <span
-    onClick={() => setShowPassword(!showPassword)}
-    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-purple-600 cursor-pointer select-none"
-  >
-    {showPassword ? <FaEyeSlash /> : <FaEye />}
-  </span>
-</div>
+          <input
+            type={showPassword ? "text" : "password"}
+            name="password"
+            placeholder="Password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 pr-12"
+          />
+          <span
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-purple-600 cursor-pointer select-none"
+          >
+            {showPassword ? <FaEyeSlash /> : <FaEye />}
+          </span>
+        </div>
 
+        {/* Signup button with loader */}
         <button
           type="submit"
-          className="w-full bg-purple-700 text-white py-2 rounded-lg hover:bg-purple-800 transition"
+          disabled={loading}
+          className={`w-full flex items-center justify-center bg-purple-700 text-white py-2 rounded-lg hover:bg-purple-800 transition ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
-          Sign Up
+          {loading ? (
+            <svg
+              className="animate-spin h-5 w-5 mr-2 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+              ></path>
+            </svg>
+          ) : 'Sign Up'}
         </button>
+
         <button
-        onClick={()=>navigate('/')}
+          onClick={() => navigate('/')}
           type="button"
           className="w-full bg-indigo-700 text-white py-2 rounded-lg hover:bg-indigo-800 transition mt-2"
         >
           Back
         </button>
+
         <p className="text-center text-sm mt-4 text-gray-600">
-          Already have an account?{" "}
+          Already have an account?{' '}
           <span
             onClick={() => navigate('/login')}
             className="text-purple-600 hover:underline cursor-pointer"
