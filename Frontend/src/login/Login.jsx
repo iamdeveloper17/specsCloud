@@ -31,6 +31,7 @@ const Login = () => {
         localStorage.setItem('userId', user._id);
         localStorage.setItem('userEmail', user.email);
         localStorage.setItem('isAdmin', user.isAdmin ? 'true' : 'false');
+        localStorage.setItem('userName', user.name);
 
         toast.success('Login successful!');
 

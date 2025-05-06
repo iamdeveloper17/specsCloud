@@ -52,6 +52,7 @@ router.post('/login', async (req, res) => {
     res.status(200).json({
       user: {
         _id: user._id,
+        name: user.name,      // 👈 Add this line
         email: user.email,
         isAdmin: user.isAdmin, // 👈 Send isAdmin too
       }

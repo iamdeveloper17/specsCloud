@@ -138,7 +138,7 @@ const Catalogue = () => {
 
 
   return (
-    <div className="p-6 max-w-5xl mx-auto bg-white shadow-md rounded-lg">
+    <div className="p-6 max-w-5xl mx-auto bg-white shadow-md rounded-lg mt-6">
       <h2 className="text-2xl font-bold text-indigo-700 mb-4">Upload Catalog Files</h2>
 
       <div className="relative mb-4">

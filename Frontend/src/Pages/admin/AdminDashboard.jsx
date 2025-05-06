@@ -1,14 +1,19 @@
-import React from 'react'
+import React from "react";
 
 const AdminDashboard = () => {
   return (
-    <div>
-    <h2 className="text-3xl font-bold text-slate-800 mb-4">Admin Dashboard</h2>
-    <p className="text-slate-600 text-lg">
-      Welcome to your Admin Dashboard! Add charts, widgets, or tables here.
-    </p>
-  </div>
-  )
-}
+    <div className="p-6 sm:p-10 min-h-[100vh]">
+      {/* Page Title */}
+      <h2 className="text-4xl font-extrabold text-indigo-800 mb-8 text-center">
+        Admin Dashboard
+      </h2>
 
-export default AdminDashboard
+      {/* Welcome Message */}
+      <p className="text-center text-lg text-gray-700 mb-10">
+        Welcome to your Admin Panel! Here you can monitor users, manage files, and control system settings.
+      </p>
+    </div>
+  );
+};
+
+export default AdminDashboard;

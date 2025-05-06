@@ -28,7 +28,14 @@ const login = (req, res) => {
     return res.status(401).json({ message: 'Invalid email or password' });
   }
 
-  res.status(200).json({ message: 'Login successful' });
+  res.status(200).json({
+    message: 'Login successful',
+    user: {
+      name: user.name,
+      email: user.email,
+      isAdmin: user.isAdmin || false,  // Optional if you add isAdmin
+    }
+  });
 };
 
 module.exports = { signup, login };

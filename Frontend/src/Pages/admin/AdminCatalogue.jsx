@@ -54,11 +54,11 @@ const AdminCatalogue = () => {
   }, []);
 
   return (
-    <div className="p-6 max-w-6xl mx-auto bg-white shadow-md rounded-lg">
+    <div className="p-6 max-w-6xl mx-auto bg-white shadow-md rounded-lg mt-6">
       <h2 className="text-2xl font-bold text-indigo-700 mb-4">All Uploaded Catalog Files (Admin View)</h2>
 
       <div className="overflow-x-auto">
-        <div className="max-h-[500px] overflow-y-auto border border-gray-300 rounded">
+        <div className="max-h-[600px] overflow-y-auto border border-gray-300 rounded">
           <table className="min-w-full border border-gray-200 text-sm">
             <thead className="bg-indigo-600 text-white sticky top-0 z-10">
               <tr>
