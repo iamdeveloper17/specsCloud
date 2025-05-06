@@ -24,6 +24,9 @@ app.use('/api', authRoutes);
 const catalogueRoutes = require('./routes/catalogue');
 app.use('/api/catalogue', catalogueRoutes);
 
+const adminRoutes = require('./routes/admin');
+app.use('/api/admin', adminRoutes);  // 🔥 Important
+
 // Start server
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
