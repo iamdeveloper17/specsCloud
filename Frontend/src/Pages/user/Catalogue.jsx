@@ -124,8 +124,18 @@ const Catalogue = () => {
       const res = await axios.get(`https://specscloud-1.onrender.com/api/catalogue/download/${id}`, {
         responseType: 'blob',
       });
-
-      const url = window.URL.createObjectURL(new Blob([res.data]));
+  
+      let blob;
+      if (fileType === 'application/pdf') {
+        blob = new Blob([res.data], { type: 'application/pdf' }); // ✅ Tell browser it's a PDF
+      } else if (fileType.startsWith('image/')) {
+        blob = new Blob([res.data], { type: fileType }); // ✅ Image
+      } else {
+        blob = new Blob([res.data]); // ✅ fallback (other types)
+      }
+  
+      const url = window.URL.createObjectURL(blob);
+  
       setViewFileUrl(url);
       setViewFileType(fileType);
       setIsViewModalOpen(true);
@@ -133,7 +143,7 @@ const Catalogue = () => {
       console.error(error.message);
       toast.error('Failed to load file for viewing');
     }
-  };
+  };  
 
 
 
@@ -299,14 +309,16 @@ const Catalogue = () => {
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-semibold">View File</h2>
                 <button
-                  onClick={() => {
-                    setIsViewModalOpen(false);
-                    window.URL.revokeObjectURL(viewFileUrl); // Clean memory
-                  }}
-                  className="text-red-500 text-xl font-bold hover:text-red-700"
-                >
-                  ×
-                </button>
+  onClick={() => {
+    setIsViewModalOpen(false);
+    window.URL.revokeObjectURL(viewFileUrl); // ✅ Clean memory
+    setViewFileUrl(''); // ✅ Clear URL
+    setViewFileType(''); // ✅ Clear Type
+  }}
+  className="text-red-500 text-xl font-bold hover:text-red-700"
+>
+  ×
+</button>
               </div>
 
               {/* View File Here */}
