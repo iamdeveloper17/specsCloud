@@ -8,21 +8,24 @@ import 'react-toastify/dist/ReactToastify.css';
 import FrontPage from "./login/FrontPage";
 import Signup from "./login/Signup";
 import Login from "./login/Login";
-import MainLayout from "./layout/MainLayout";
+
+// Layouts
+import UserMainLayout from "./layout/UserMainLayout";
+import AdminMainLayout from "./layout/AdminMainLayout";
 
 // User Pages
-import DashBoard from "./Pages/user/Dashboard";
+import Dashboard from "./Pages/user/Dashboard";
 import Catalogue from "./Pages/user/Catalogue";
 
 // Admin Pages
-import AdminCatalogue from "./Pages/admin/AdminCatalogue";
 import AdminDashboard from "./Pages/admin/AdminDashboard";
+import AdminCatalogue from "./Pages/admin/AdminCatalogue";
 import AdminUser from "./Pages/admin/AdminUser";
 
-// Guards
-import ProtectedRoute from "./components/ProtectedRoute";
+// Route Guards
 import PublicRoute from "./components/PublicRoute";
-import AdminRoute from "./components/AdminRoute"; // 👈 Import this
+import UserProtectedRoute from "./components/UserProtectedRoute";
+import AdminProtectedRoute from "./components/AdminProtectedRoute";
 
 const App = () => {
   return (
@@ -33,25 +36,20 @@ const App = () => {
         <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
         <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
 
-        {/* Main Layout (Sidebar + Topbar) */}
-        <Route path="/" element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
-          {/* User Routes */}
-          <Route path="dashboard" element={<DashBoard />} />
+        {/* User Layout Routes */}
+        <Route path="/" element={<UserProtectedRoute><UserMainLayout /></UserProtectedRoute>}>
+          <Route path="dashboard" element={<Dashboard />} />
           <Route path="catalogue" element={<Catalogue />} />
-
-          {/* Admin Routes */}
-          <Route path="admin-dashboard" element={
-            <AdminRoute><AdminDashboard /></AdminRoute> // 👈 Correct Admin Guard
-          } />
-          <Route path="admin-catalogue" element={
-            <AdminRoute><AdminCatalogue /></AdminRoute> // 👈
-          } />
-          <Route path="admin-users" element={
-            <AdminRoute><AdminUser /></AdminRoute> // 👈
-          } />
         </Route>
 
-        {/* 404 Page */}
+        {/* Admin Layout Routes */}
+        <Route path="/" element={<AdminProtectedRoute><AdminMainLayout /></AdminProtectedRoute>}>
+          <Route path="admin-dashboard" element={<AdminDashboard />} />
+          <Route path="admin-catalogue" element={<AdminCatalogue />} />
+          <Route path="admin-users" element={<AdminUser />} />
+        </Route>
+
+        {/* 404 */}
         <Route path="*" element={<h1>404 - Page Not Found</h1>} />
       </Routes>
 
