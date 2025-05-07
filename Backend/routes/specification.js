@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const { uploadFile } = require('../controllers/specificationController');
-const specification = require('../models/specification'); // ✅ important
+const specification = require('../models/Specification'); // ✅ important
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
