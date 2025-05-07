@@ -10,6 +10,7 @@ const Sidebar = ({ onClose }) => {
   const navItems = [
     { name: 'Dashboard', icon: <FaHome />, path: '/dashboard' },
     { name: 'Catalogue', icon: <FaFolderOpen />, path: '/catalogue' },
+    { name: 'Specification', icon: <FaFolderOpen />, path: '/specification' },
   ];
 
   const handleLogout = () => {

@@ -3,7 +3,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const Catalogue = () => {
+const Specification = () => {
   const [files, setFiles] = useState([]);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -23,7 +23,7 @@ const Catalogue = () => {
 
   const fetchFiles = async () => {
     const userId = localStorage.getItem('userId');
-    const res = await axios.get(`https://specscloud-1.onrender.com/api/catalogue/files?userId=${userId}`);
+    const res = await axios.get(`https://specscloud-1.onrender.com/api/specification/files?userId=${userId}`);
     setFiles(res.data);
   };
 
@@ -60,7 +60,7 @@ const Catalogue = () => {
     formData.append('category', uploadCategory);
 
     try {
-      await axios.post('https://specscloud-1.onrender.com/api/catalogue/upload', formData, {
+      await axios.post('https://specscloud-1.onrender.com/api/specification/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
         onUploadProgress: (progressEvent) => {
           const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
@@ -83,7 +83,7 @@ const Catalogue = () => {
 
   const handleDownload = async (id, name) => {
     try {
-      const res = await axios.get(`https://specscloud-1.onrender.com/api/catalogue/download/${id}`, {
+      const res = await axios.get(`https://specscloud-1.onrender.com/api/specification/download/${id}`, {
         responseType: 'blob',
       });
       const url = window.URL.createObjectURL(new Blob([res.data]));
@@ -103,7 +103,7 @@ const Catalogue = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this file?')) return;
     try {
-      await axios.delete(`https://specscloud-1.onrender.com/api/catalogue/delete/${id}`);
+      await axios.delete(`https://specscloud-1.onrender.com/api/specification/delete/${id}`);
       toast.success('File deleted successfully');
       fetchFiles();
     } catch (error) {
@@ -120,7 +120,7 @@ const Catalogue = () => {
 
   const handleView = async (id, fileType) => {
     try {
-      const res = await axios.get(`https://specscloud-1.onrender.com/api/catalogue/download/${id}`, {
+      const res = await axios.get(`https://specscloud-1.onrender.com/api/specification/download/${id}`, {
         responseType: 'blob',
       });
       const blob = new Blob([res.data], { type: fileType });
@@ -139,7 +139,7 @@ const Catalogue = () => {
 
   return (
     <div className="p-6 max-w-6xl mx-auto bg-white shadow-md rounded-lg mt-6">
-      <h2 className="text-2xl font-bold text-indigo-700 mb-4">Upload Catalog Files</h2>
+      <h2 className="text-2xl font-bold text-indigo-700 mb-4">Upload Specification Files</h2>
 
       {/* Upload Section */}
       <div className="relative mb-4">
@@ -231,7 +231,7 @@ const Catalogue = () => {
               {filteredFiles.length === 0 ? (
                 <tr>
                   <td colSpan="5" className="py-6 text-center text-gray-500">
-                    No catalogs uploaded yet!
+                    No Specifications uploaded yet!
                   </td>
                 </tr>
               ) : (
@@ -274,7 +274,7 @@ const Catalogue = () => {
                     toast.error('File name cannot be empty');
                     return;
                   }
-                  await axios.put(`https://specscloud-1.onrender.com/api/catalogue/rename/${renameFileId}`, { newName: renameFileName });
+                  await axios.put(`https://specscloud-1.onrender.com/api/specification/rename/${renameFileId}`, { newName: renameFileName });
                   toast.success('File renamed successfully!');
                   setIsRenameModalOpen(false);
                   fetchFiles();
@@ -322,4 +322,4 @@ const Catalogue = () => {
   );
 };
 
-export default Catalogue;
+export default Specification;
