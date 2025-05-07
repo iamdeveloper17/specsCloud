@@ -5,13 +5,9 @@ const catalogueSchema = new mongoose.Schema({
   fileType: String,
   fileSize: Number,
   fileData: Buffer,
-  uploadedById: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-  },
-  uploadedByEmail: {
-    type: String,
-  }
+  uploadedById: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  uploadedByEmail: String,
+  category: { type: String, default: 'N/A' }, // ✅ Add this line
 });
 
 module.exports = mongoose.model('Catalogue', catalogueSchema);

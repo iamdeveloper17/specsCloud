@@ -160,26 +160,26 @@ const AdminCatalogue = () => {
 
             {/* Display content based on file type */}
             {/* Display content based on file type */}
-{viewFileType.startsWith('image/') && (
-  <img src={viewFileUrl} alt="file" className="w-full h-auto" />
-)}
+            {viewFileType.startsWith('image/') && (
+              <img src={viewFileUrl} alt="file" className="w-full h-auto" />
+            )}
 
-{viewFileType === 'application/pdf' && (
-  <iframe
-    src={viewFileUrl}
-    title="PDF Viewer"
-    type="application/pdf"
-    className="w-full h-[80vh]"
-  />
-)}
+            {viewFileType === 'application/pdf' && (
+              <iframe
+                src={viewFileUrl}
+                title="PDF Viewer"
+                type="application/pdf"
+                className="w-full h-[80vh]"
+              />
+            )}
 
-{(viewFileType.includes('word') || viewFileType.includes('presentation') || viewFileType.includes('excel')) && (
-  <iframe
-    src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(viewFileUrl)}`}
-    title="Office File Viewer"
-    className="w-full h-[80vh]"
-  />
-)}
+            {(viewFileType.includes('word') || viewFileType.includes('presentation') || viewFileType.includes('excel')) && (
+              <iframe
+                src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(viewFileUrl)}`}
+                title="Office File Viewer"
+                className="w-full h-[80vh]"
+              />
+            )}
 
           </div>
         </div>
