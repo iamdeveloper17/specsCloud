@@ -1,50 +1,22 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const Catalogue = require('../models/Catalogue'); // Correct model
+const { uploadFile } = require('../controllers/catalogueController');
+const Catalogue = require('../models/Catalogue'); // ✅ important
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-// Upload files
-router.post('/upload', upload.array('files'), async (req, res) => {
-  try {
-    const { userId, userEmail } = req.body; // 🧠 Receive both userId and userEmail from frontend
+// Correct Route for Upload
+router.post('/upload', upload.array('files'), uploadFile);
 
-    const filesData = req.files.map(file => ({
-      fileName: file.originalname,
-      fileType: file.mimetype,
-      fileSize: file.size,
-      fileData: file.buffer,
-      uploadedById: userId,     // 🔥 Save userId
-      uploadedByEmail: userEmail, // 🔥 Save userEmail
-    }));
-
-    await Catalogue.insertMany(filesData);
-
-    res.status(201).json({ message: 'Files uploaded and saved!' });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ message: 'Upload failed' });
-  }
-});
-
-// Fetch file list (filtered by user)
+// Other Routes (no change needed)
 router.get('/files', async (req, res) => {
   const { userId } = req.query;
-
   try {
-    let files = [];
-
-    if (userId) {
-      files = await Catalogue.find(
-        { uploadedById: userId },         // 🧠 Only find files uploaded by this user
-        'fileName fileType fileSize'       // 🔥 Select only required fields
-      );
-    } else {
-      files = await Catalogue.find({}, 'fileName fileType fileSize');
-    }
-
+    const files = userId 
+      ? await Catalogue.find({ uploadedById: userId }, 'fileName fileType fileSize category')
+      : await Catalogue.find({}, 'fileName fileType fileSize category');
     res.status(200).json(files);
   } catch (error) {
     console.error(error.message);
@@ -52,7 +24,6 @@ router.get('/files', async (req, res) => {
   }
 });
 
-// Download a specific file
 router.get('/download/:id', async (req, res) => {
   try {
     const file = await Catalogue.findById(req.params.id);
@@ -60,7 +31,6 @@ router.get('/download/:id', async (req, res) => {
 
     res.setHeader('Content-Type', file.fileType);
     res.setHeader('Content-Disposition', `inline; filename="${file.fileName}"`);
-
     res.send(file.fileData);
   } catch (error) {
     console.error(error.message);
@@ -68,7 +38,6 @@ router.get('/download/:id', async (req, res) => {
   }
 });
 
-// Delete a file
 router.delete('/delete/:id', async (req, res) => {
   try {
     await Catalogue.findByIdAndDelete(req.params.id);
@@ -79,14 +48,11 @@ router.delete('/delete/:id', async (req, res) => {
   }
 });
 
-// Rename a file
 router.put('/rename/:id', async (req, res) => {
   const { newName } = req.body;
-
   if (!newName || newName.trim() === '') {
     return res.status(400).send('Invalid file name');
   }
-
   try {
     const file = await Catalogue.findById(req.params.id);
     if (!file) return res.status(404).send('File not found');

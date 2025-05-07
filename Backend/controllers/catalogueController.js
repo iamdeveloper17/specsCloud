@@ -1,25 +1,32 @@
-const Catalogue = require('../models/Catalogue'); // already required
+const Catalogue = require('../models/Catalogue');
 
 const uploadFile = async (req, res) => {
   try {
-    const category = req.body.category || 'N/A'; // ✅ Get category from frontend
+    const category = req.body.category || 'N/A'; // ✅ Get category from body
 
-    const newFile = new Catalogue({
-      fileName: req.file.originalname,
-      fileType: req.file.mimetype,
-      fileSize: req.file.size,
-      fileData: req.file.buffer,
-      uploadedById: req.body.userId,
-      uploadedByEmail: req.body.userEmail,
-      category: category, // ✅ Save category into database
-    });
+    const files = req.files; // req.files is an array
 
-    await newFile.save();
+    const uploadedFiles = [];
 
-    res.status(201).json({ message: 'File uploaded successfully!' });
+    for (const file of files) {
+      const newFile = new Catalogue({
+        fileName: file.originalname,
+        fileType: file.mimetype,
+        fileSize: file.size,
+        fileData: file.buffer,
+        uploadedById: req.body.userId,
+        uploadedByEmail: req.body.userEmail,
+        category: category, // ✅ Save category for each file
+      });
+
+      const savedFile = await newFile.save();
+      uploadedFiles.push(savedFile);
+    }
+
+    res.status(201).json({ message: 'Files uploaded successfully', files: uploadedFiles });
   } catch (error) {
     console.error('Upload error:', error);
-    res.status(500).json({ message: 'File upload failed!' });
+    res.status(500).json({ message: 'File upload failed' });
   }
 };
 
