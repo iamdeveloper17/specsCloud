@@ -2,15 +2,16 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const { uploadFile } = require('../controllers/catalogueController');
-const Catalogue = require('../models/Catalogue'); // ✅ important
+const Catalogue = require('../models/Catalogue');
+const Specification = require('../models/Specification'); // ✅ Important
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-// Correct Route for Upload
+// Upload Route
 router.post('/upload', upload.array('files'), uploadFile);
 
-// Other Routes (no change needed)
+// Get Files Route
 router.get('/files', async (req, res) => {
   const { userId } = req.query;
   try {
@@ -24,7 +25,7 @@ router.get('/files', async (req, res) => {
   }
 });
 
-
+// Download File
 router.get('/download/:id', async (req, res) => {
   try {
     const file = await Catalogue.findById(req.params.id);
@@ -39,6 +40,7 @@ router.get('/download/:id', async (req, res) => {
   }
 });
 
+// Delete File
 router.delete('/delete/:id', async (req, res) => {
   try {
     await Catalogue.findByIdAndDelete(req.params.id);
@@ -49,6 +51,7 @@ router.delete('/delete/:id', async (req, res) => {
   }
 });
 
+// Rename File
 router.put('/rename/:id', async (req, res) => {
   const { newName } = req.body;
   if (!newName || newName.trim() === '') {
@@ -68,62 +71,38 @@ router.put('/rename/:id', async (req, res) => {
   }
 });
 
-// Fetch all unique folders with file counts
-// 📂 Get list of folders + file names inside each folder
+// Final 🛠 Merge Folders Route
 router.get('/folders', async (req, res) => {
   try {
-    const folders = await Catalogue.aggregate([
-      {
-        $group: {
-          _id: '$folderName',         // Group by folderName
-          fileCount: { $sum: 1 },      // Count number of files in folder
-          files: {                    // Also list files in folder
-            $push: {
-              _id: '$_id',             // File ID
-              fileName: '$fileName'    // File Name
-            }
-          }
-        }
-      },
-      {
-        $sort: { _id: 1 }              // Sort folders alphabetically
+    const catalogueFiles = await Catalogue.find({}, 'fileName fileType fileSize folderName category');
+    const specificationFiles = await Specification.find({}, 'fileName fileType fileSize folderName category');
+
+    const allFiles = [
+      ...catalogueFiles.map(f => ({ ...f.toObject(), source: 'Catalogue' })),
+      ...specificationFiles.map(f => ({ ...f.toObject(), source: 'Specification' })),
+    ];
+
+    const grouped = {};
+
+    allFiles.forEach(file => {
+      const folder = file.folderName || 'No Folder';
+      if (!grouped[folder]) {
+        grouped[folder] = [];
       }
-    ]);
+      grouped[folder].push(file);
+    });
+
+    const folders = Object.keys(grouped).map(folderName => ({
+      _id: folderName,
+      fileCount: grouped[folderName].length,
+      files: grouped[folderName],
+    }));
+
     res.status(200).json(folders);
   } catch (error) {
-    console.error('Fetching folders failed:', error.message);
+    console.error(error.message);
     res.status(500).json({ message: 'Fetching folders failed' });
   }
 });
-
-
-// Rename a folder
-router.put('/folders/:folderName', async (req, res) => {
-  const { newFolderName } = req.body;
-  const { folderName } = req.params;
-  if (!newFolderName || newFolderName.trim() === '') {
-    return res.status(400).send('Invalid new folder name');
-  }
-  try {
-    await Catalogue.updateMany({ folderName }, { folderName: newFolderName });
-    res.send('Folder renamed successfully');
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).send('Rename folder failed');
-  }
-});
-
-// Delete a folder
-router.delete('/folders/:folderName', async (req, res) => {
-  const { folderName } = req.params;
-  try {
-    await Catalogue.deleteMany({ folderName });
-    res.send('Folder deleted successfully');
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).send('Delete folder failed');
-  }
-});
-
 
 module.exports = router;
