@@ -3,6 +3,7 @@ const Specification = require('../models/Specification');
 const uploadFile = async (req, res) => {
   try {
     const category = req.body.category || 'N/A'; // ✅ Get category from body
+    const folderName = req.body.folderName || 'General'; // ✅ Get folderName from body, fallback if missing
 
     const files = req.files; // req.files is an array
 
@@ -17,6 +18,7 @@ const uploadFile = async (req, res) => {
         uploadedById: req.body.userId,
         uploadedByEmail: req.body.userEmail,
         category: category, // ✅ Save category for each file
+        folderName: folderName, // ✅ Important: save folder name also
       });
 
       const savedFile = await newFile.save();

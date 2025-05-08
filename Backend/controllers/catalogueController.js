@@ -2,7 +2,8 @@ const Catalogue = require('../models/Catalogue');
 
 const uploadFile = async (req, res) => {
   try {
-    const category = req.body.category || 'N/A'; // ✅ Get category from body
+    const category = req.body.category || 'N/A';
+    const folderName = req.body.folderName || 'General'; // ✅ Get folderName from body, fallback if missing
 
     const files = req.files; // req.files is an array
 
@@ -16,7 +17,8 @@ const uploadFile = async (req, res) => {
         fileData: file.buffer,
         uploadedById: req.body.userId,
         uploadedByEmail: req.body.userEmail,
-        category: category, // ✅ Save category for each file
+        category: category,
+        folderName: folderName, // ✅ Important: save folder name also
       });
 
       const savedFile = await newFile.save();

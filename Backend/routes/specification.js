@@ -15,8 +15,8 @@ router.get('/files', async (req, res) => {
   const { userId } = req.query;
   try {
     const files = userId 
-      ? await specification.find({ uploadedById: userId }, 'fileName fileType fileSize category')
-      : await specification.find({}, 'fileName fileType fileSize category');
+      ? await specification.find({ uploadedById: userId }, 'fileName fileType fileSize category folderName')
+      : await specification.find({}, 'fileName fileType fileSize category folderName');
     res.status(200).json(files);
   } catch (error) {
     console.error(error.message);
