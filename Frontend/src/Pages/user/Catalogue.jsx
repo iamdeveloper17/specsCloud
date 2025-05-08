@@ -53,7 +53,7 @@ const Catalogue = () => {
       toast.error('Please enter a folder name before uploading!');
       return;
     }
-    
+
     const userId = localStorage.getItem('userId');
     const userEmail = localStorage.getItem('userEmail');
 
@@ -236,6 +236,7 @@ const Catalogue = () => {
           <table className="min-w-full border border-gray-200 text-sm">
             <thead className="bg-indigo-600 text-white sticky top-0 z-10">
               <tr>
+              <th className="py-2 px-4 text-left">Folder Name</th>
                 <th className="py-2 px-4 text-left">File Name</th>
                 <th className="py-2 px-4 text-left">Category</th>
                 <th className="py-2 px-4 text-left">File Type</th>
@@ -253,6 +254,7 @@ const Catalogue = () => {
               ) : (
                 filteredFiles.map((file) => (
                   <tr key={file._id} className="border-b">
+                    <td className="py-2 px-4">{file.folderName || 'N/A'}</td>
                     <td className="py-2 px-4 max-w-xs truncate" title={file.fileName}>{file.fileName}</td>
                     <td className="py-2 px-4">{file.category || 'N/A'}</td>
                     <td className="py-2 px-4">{file.fileType || 'N/A'}</td>
