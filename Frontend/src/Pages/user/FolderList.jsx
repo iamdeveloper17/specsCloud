@@ -7,6 +7,7 @@ const FolderList = () => {
   const [folders, setFolders] = useState([]);
   const [editingFolder, setEditingFolder] = useState(null);
   const [newFolderName, setNewFolderName] = useState('');
+  const [expandedFolders, setExpandedFolders] = useState([]); // 🔥 New: track expanded folders
 
   const fetchFolders = async () => {
     try {
@@ -53,8 +54,16 @@ const FolderList = () => {
     }
   };
 
+  const toggleExpand = (folderId) => {
+    if (expandedFolders.includes(folderId)) {
+      setExpandedFolders(expandedFolders.filter((id) => id !== folderId));
+    } else {
+      setExpandedFolders([...expandedFolders, folderId]);
+    }
+  };
+
   return (
-    <div className="p-6 max-w-5xl mx-auto bg-white shadow-md rounded-lg mt-6">
+    <div className="p-6 max-w-6xl mx-auto bg-white shadow-md rounded-lg mt-6">
       <h2 className="text-2xl font-bold text-indigo-700 mb-6">Folders Management</h2>
 
       <div className="overflow-x-auto">
@@ -73,54 +82,85 @@ const FolderList = () => {
               </tr>
             ) : (
               folders.map((folder) => (
-                <tr key={folder._id || folder.folderName} className="border-b">
-                  <td className="py-2 px-4">
-                    {editingFolder === folder._id ? (
-                      <input
-                        type="text"
-                        value={newFolderName}
-                        onChange={(e) => setNewFolderName(e.target.value)}
-                        className="border border-gray-300 rounded px-2 py-1"
-                      />
-                    ) : (
-                      folder._id || 'No Name'
-                    )}
-                  </td>
-                  <td className="py-2 px-4">{folder.fileCount}</td>
-                  <td className="py-2 px-4 space-x-2">
-                    {editingFolder === folder._id ? (
-                      <>
-                        <button
-                          onClick={() => handleRename(folder._id)}
-                          className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
-                        >
-                          Save
-                        </button>
-                        <button
-                          onClick={() => { setEditingFolder(null); setNewFolderName(''); }}
-                          className="bg-gray-400 text-white px-3 py-1 rounded hover:bg-gray-500"
-                        >
-                          Cancel
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        <button
-                          onClick={() => { setEditingFolder(folder._id); setNewFolderName(folder._id); }}
-                          className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(folder._id)}
-                          className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
-                        >
-                          Delete
-                        </button>
-                      </>
-                    )}
-                  </td>
-                </tr>
+                <React.Fragment key={folder._id || Math.random()}>
+                  <tr className="border-b">
+                    <td className="py-2 px-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => toggleExpand(folder._id)}
+                            className="focus:outline-none"
+                          >
+                            {expandedFolders.includes(folder._id) ? '🔽' : '▶️'}
+                          </button>
+                          {editingFolder === folder._id ? (
+                            <input
+                              type="text"
+                              value={newFolderName}
+                              onChange={(e) => setNewFolderName(e.target.value)}
+                              className="border border-gray-300 rounded px-2 py-1"
+                            />
+                          ) : (
+                            <span>{folder._id || 'No Name'}</span>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-2 px-4">{folder.fileCount}</td>
+                    <td className="py-2 px-4 space-x-2">
+                      {editingFolder === folder._id ? (
+                        <>
+                          <button
+                            onClick={() => handleRename(folder._id)}
+                            className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
+                          >
+                            Save
+                          </button>
+                          <button
+                            onClick={() => { setEditingFolder(null); setNewFolderName(''); }}
+                            className="bg-gray-400 text-white px-3 py-1 rounded hover:bg-gray-500"
+                          >
+                            Cancel
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => { setEditingFolder(folder._id); setNewFolderName(folder._id); }}
+                            className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDelete(folder._id)}
+                            className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
+                          >
+                            Delete
+                          </button>
+                        </>
+                      )}
+                    </td>
+                  </tr>
+
+                  {/* Expanded: show files inside */}
+                  {expandedFolders.includes(folder._id) && (
+                    <tr>
+                      <td colSpan="3" className="bg-gray-50">
+                        <div className="p-4 space-y-2">
+                          {folder.files.length === 0 ? (
+                            <p className="text-gray-500">No files inside this folder.</p>
+                          ) : (
+                            folder.files.map((file) => (
+                              <div key={file._id} className="flex items-center justify-between border-b pb-2">
+                                <span>{file.fileName}</span>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
               ))
             )}
           </tbody>

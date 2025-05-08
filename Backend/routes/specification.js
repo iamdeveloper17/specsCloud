@@ -68,18 +68,33 @@ router.put('/rename/:id', async (req, res) => {
 });
 
 // Fetch all unique folders with file counts
+// 📂 Get list of folders + file names inside each folder
 router.get('/folders', async (req, res) => {
   try {
-    const folders = await Catalogue.aggregate([
-      { $group: { _id: '$folderName', fileCount: { $sum: 1 } } },
-      { $sort: { _id: 1 } }
+    const folders = await specification.aggregate([
+      {
+        $group: {
+          _id: '$folderName',         // Group by folderName
+          fileCount: { $sum: 1 },      // Count number of files in folder
+          files: {                    // Also list files in folder
+            $push: {
+              _id: '$_id',             // File ID
+              fileName: '$fileName'    // File Name
+            }
+          }
+        }
+      },
+      {
+        $sort: { _id: 1 }              // Sort folders alphabetically
+      }
     ]);
     res.status(200).json(folders);
   } catch (error) {
-    console.error(error.message);
+    console.error('Fetching folders failed:', error.message);
     res.status(500).json({ message: 'Fetching folders failed' });
   }
 });
+
 
 // Rename a folder
 router.put('/folders/:folderName', async (req, res) => {
@@ -89,7 +104,7 @@ router.put('/folders/:folderName', async (req, res) => {
     return res.status(400).send('Invalid new folder name');
   }
   try {
-    await Catalogue.updateMany({ folderName }, { folderName: newFolderName });
+    await specification.updateMany({ folderName }, { folderName: newFolderName });
     res.send('Folder renamed successfully');
   } catch (error) {
     console.error(error.message);
@@ -101,7 +116,7 @@ router.put('/folders/:folderName', async (req, res) => {
 router.delete('/folders/:folderName', async (req, res) => {
   const { folderName } = req.params;
   try {
-    await Catalogue.deleteMany({ folderName });
+    await specification.deleteMany({ folderName });
     res.send('Folder deleted successfully');
   } catch (error) {
     console.error(error.message);

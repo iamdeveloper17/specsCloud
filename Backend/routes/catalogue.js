@@ -69,18 +69,33 @@ router.put('/rename/:id', async (req, res) => {
 });
 
 // Fetch all unique folders with file counts
+// 📂 Get list of folders + file names inside each folder
 router.get('/folders', async (req, res) => {
   try {
     const folders = await Catalogue.aggregate([
-      { $group: { _id: '$folderName', fileCount: { $sum: 1 } } },
-      { $sort: { _id: 1 } }
+      {
+        $group: {
+          _id: '$folderName',         // Group by folderName
+          fileCount: { $sum: 1 },      // Count number of files in folder
+          files: {                    // Also list files in folder
+            $push: {
+              _id: '$_id',             // File ID
+              fileName: '$fileName'    // File Name
+            }
+          }
+        }
+      },
+      {
+        $sort: { _id: 1 }              // Sort folders alphabetically
+      }
     ]);
     res.status(200).json(folders);
   } catch (error) {
-    console.error(error.message);
+    console.error('Fetching folders failed:', error.message);
     res.status(500).json({ message: 'Fetching folders failed' });
   }
 });
+
 
 // Rename a folder
 router.put('/folders/:folderName', async (req, res) => {
