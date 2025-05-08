@@ -27,6 +27,7 @@ import PublicRoute from "./components/PublicRoute";
 import UserProtectedRoute from "./components/UserProtectedRoute";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
 import Specification from "./Pages/user/Specification";
+import FolderList from "./Pages/user/FolderList";
 
 const App = () => {
   return (
@@ -42,6 +43,7 @@ const App = () => {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="catalogue" element={<Catalogue />} />
           <Route path="specification" element={<Specification />} />
+          <Route path="folder" element={<FolderList />} />
         </Route>
 
         {/* Admin Layout Routes */}
