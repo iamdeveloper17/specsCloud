@@ -69,31 +69,40 @@ router.put('/rename/:id', async (req, res) => {
 
 // Fetch all unique folders with file counts
 // 📂 Get list of folders + file names inside each folder
+// 📂 GET folders - Specification files
 router.get('/folders', async (req, res) => {
   try {
-    const folders = await specification.aggregate([
-      {
-        $group: {
-          _id: '$folderName',         // Group by folderName
-          fileCount: { $sum: 1 },      // Count number of files in folder
-          files: {                    // Also list files in folder
-            $push: {
-              _id: '$_id',             // File ID
-              fileName: '$fileName'    // File Name
-            }
-          }
-        }
-      },
-      {
-        $sort: { _id: 1 }              // Sort folders alphabetically
+    const specificationFiles = await specification.find({}, 'fileName fileType fileSize folderName category');
+
+    const grouped = {};
+
+    specificationFiles.forEach(file => {
+      const folder = file.folderName || 'No Folder';
+      if (!grouped[folder]) {
+        grouped[folder] = [];
       }
-    ]);
+      grouped[folder].push({
+        _id: file._id,
+        fileName: file.fileName,
+        fileType: file.fileType,
+        category: file.category,
+        type: 'Specification', // ✅ important
+      });
+    });
+
+    const folders = Object.keys(grouped).map(folderName => ({
+      _id: folderName,
+      fileCount: grouped[folderName].length,
+      files: grouped[folderName],
+    }));
+
     res.status(200).json(folders);
   } catch (error) {
     console.error('Fetching folders failed:', error.message);
     res.status(500).json({ message: 'Fetching folders failed' });
   }
 });
+
 
 
 // Rename a folder
