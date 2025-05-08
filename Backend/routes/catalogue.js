@@ -75,21 +75,21 @@ router.put('/rename/:id', async (req, res) => {
 router.get('/folders', async (req, res) => {
   try {
     const catalogueFiles = await Catalogue.find({}, 'fileName fileType fileSize folderName category');
-    const specificationFiles = await Specification.find({}, 'fileName fileType fileSize folderName category');
-
-    const allFiles = [
-      ...catalogueFiles.map(f => ({ ...f.toObject(), source: 'Catalogue' })),
-      ...specificationFiles.map(f => ({ ...f.toObject(), source: 'Specification' })),
-    ];
 
     const grouped = {};
 
-    allFiles.forEach(file => {
+    catalogueFiles.forEach(file => {
       const folder = file.folderName || 'No Folder';
       if (!grouped[folder]) {
         grouped[folder] = [];
       }
-      grouped[folder].push(file);
+      grouped[folder].push({
+        _id: file._id,               // ✅ Correctly push id
+        fileName: file.fileName,      // ✅ Correctly push fileName
+        fileType: file.fileType,      // ✅ Push fileType also
+        category: file.category,      // ✅ Push category
+        type: 'Catalogue',            // ✅ Tell that this is catalogue file
+      });
     });
 
     const folders = Object.keys(grouped).map(folderName => ({
@@ -104,5 +104,6 @@ router.get('/folders', async (req, res) => {
     res.status(500).json({ message: 'Fetching folders failed' });
   }
 });
+
 
 module.exports = router;
