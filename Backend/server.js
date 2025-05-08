@@ -27,6 +27,10 @@ app.use('/api/catalogue', catalogueRoutes);
 const adminRoutes = require('./routes/admin');
 app.use('/api/admin', adminRoutes);  // 🔥 Important
 
+const specificationRoutes = require('./routes/specification'); // 👈 import your specification routes
+app.use('/api/specification', specificationRoutes); // 👈 add this line to mount it on /api/specification
+
+
 // Start server
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
