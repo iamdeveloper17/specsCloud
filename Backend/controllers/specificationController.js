@@ -2,23 +2,23 @@ const Specification = require('../models/Specification');
 
 const uploadFile = async (req, res) => {
   try {
-    const category = req.body.category || 'N/A'; // ✅ Get category from body
-    const folderName = req.body.folderName || 'General'; // ✅ Get folderName from body, fallback if missing
+    const category = req.body.category || 'N/A';
+    const folderName = req.body.folderName || 'General';
+    const userId = req.body.userId;
+    const userEmail = req.body.userEmail;
 
-    const files = req.files; // req.files is an array
-
+    const files = req.files;
     const uploadedFiles = [];
 
     for (const file of files) {
       const newFile = new Specification({
-        fileName: file.originalname,
+        fileName: file.filename,       // ⚠️ Use multer-generated disk filename
         fileType: file.mimetype,
         fileSize: file.size,
-        fileData: file.buffer,
-        uploadedById: req.body.userId,
-        uploadedByEmail: req.body.userEmail,
-        category: category, // ✅ Save category for each file
-        folderName: folderName, // ✅ Important: save folder name also
+        uploadedById: userId,
+        uploadedByEmail: userEmail,
+        category: category,
+        folderName: folderName
       });
 
       const savedFile = await newFile.save();

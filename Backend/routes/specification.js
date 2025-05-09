@@ -4,15 +4,18 @@ const multer = require('multer');
 const { uploadFile } = require('../controllers/specificationController');
 const specification = require('../models/Specification'); // ✅ important
 
+const path = require('path');
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'uploads/'); // store in server folder
+    cb(null, 'uploads/'); // Store files in /uploads
   },
   filename: function (req, file, cb) {
     cb(null, Date.now() + '-' + file.originalname);
   }
 });
-const upload = multer({ storage: storage });
+
+const upload = multer({ storage });
 
 // Correct Route for Upload
 router.post('/upload', upload.array('files'), uploadFile);
@@ -139,23 +142,18 @@ router.delete('/folders/:folderName', async (req, res) => {
 });
 
 router.get('/file-url/:id', async (req, res) => {
-    try {
-        const file = await specification.findById(req.params.id);
-
-        if (!file) {
-            return res.status(404).json({ error: 'File not found' });
-        }
-
-        const mime = file.fileType;
-        const base64 = file.fileData.toString('base64');
-        const dataUrl = `data:${mime};base64,${base64}`;
-
-        res.json({ url: dataUrl });
-    } catch (err) {
-        console.error('file-url error (specification):', err.message);
-        res.status(500).json({ error: 'Internal Server Error' });
+  try {
+    const file = await specification.findById(req.params.id);
+    if (!file || !file.fileName) {
+      return res.status(404).json({ error: 'File not found' });
     }
-});
 
+    const publicUrl = `https://specscloud-1.onrender.com/uploads/${file.fileName}`;
+    res.json({ url: publicUrl });
+  } catch (error) {
+    console.error('Error fetching file URL:', error.message);
+    res.status(500).json({ error: 'Failed to generate file URL' });
+  }
+});
 
 module.exports = router;

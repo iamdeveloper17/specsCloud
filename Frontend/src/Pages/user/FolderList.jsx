@@ -64,28 +64,40 @@ const FolderList = () => {
 const handleViewFile = async (file) => {
     const baseApi = file.source === 'specification' ? 'specification' : 'catalogue';
     try {
-        // STEP 1: Get public file URL
-        const res = await axios.get(`https://specscloud-1.onrender.com/api/${baseApi}/file-url/${file._id}`);
-        const fileUrl = res.data.url;
+        // Step 1: Get file blob
+        const res = await axios.get(`https://specscloud-1.onrender.com/api/${baseApi}/download/${file._id}`, {
+            responseType: 'blob',
+        });
+
+        const fileType = res.headers['content-type'];
         const ext = file.fileName.split('.').pop().toLowerCase();
 
-        // STEP 2: Use Office Viewer for Word/Excel/PPT
+        const blob = new Blob([res.data], { type: fileType });
+        const url = window.URL.createObjectURL(blob);
+
         if (['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx'].includes(ext)) {
-            const viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fileUrl)}`;
-            window.open(viewerUrl, '_blank');
-        } else if (ext === 'pdf' || fileUrl.includes('.pdf')) {
-            window.open(fileUrl, '_blank');
-        } else if (fileUrl.startsWith('http') && (ext === 'png' || ext === 'jpg' || ext === 'jpeg')) {
-            window.open(fileUrl, '_blank');
-        } else {
+            // ❗Office Viewer requires a public HTTP URL, so this won't work
+            toast.warning('Office preview not supported — file will download instead');
             const link = document.createElement('a');
-            link.href = fileUrl;
+            link.href = url;
             link.setAttribute('download', file.fileName);
             document.body.appendChild(link);
             link.click();
             link.remove();
-            toast.info('File downloaded');
+        } else if (ext === 'pdf' || fileType === 'application/pdf') {
+            window.open(url, '_blank');
+        } else if (fileType.startsWith('image/')) {
+            window.open(url, '_blank');
+        } else {
+            // Default to download
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', file.fileName);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
         }
+
     } catch (error) {
         console.error(error.message);
         toast.error('Failed to preview file');
