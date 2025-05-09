@@ -21,6 +21,22 @@ const Catalogue = () => {
   const [viewFileType, setViewFileType] = useState('');
 
   const categoryOptions = ['Rehab', 'Critical Care', 'Medical Education', 'Simulation', 'Anatomy', 'Medication'];
+  const [folderSuggestions, setFolderSuggestions] = useState([]);
+
+useEffect(() => {
+  fetchFiles();
+  fetchFolderSuggestions();
+}, []);
+
+const fetchFolderSuggestions = async () => {
+  try {
+    const res = await axios.get('https://specscloud-1.onrender.com/api/catalogue/folder-names');
+    setFolderSuggestions(res.data || []);
+  } catch (error) {
+    console.error('Failed to fetch folder suggestions:', error.message);
+  }
+};
+
 
   const fetchFiles = async () => {
     const userId = localStorage.getItem('userId');
@@ -149,13 +165,32 @@ const Catalogue = () => {
     <div className="p-6 max-w-6xl mx-auto bg-white shadow-md rounded-lg mt-6">
       <h2 className="text-2xl font-bold text-indigo-700 mb-4">Upload Catalog Files</h2>
 
-      <input
-        type="text"
-        placeholder="Enter Folder Name"
-        value={folderName}
-        onChange={(e) => setFolderName(e.target.value)}
-        className="w-full border border-gray-300 rounded px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-      />
+<div className="relative mb-4">
+  <input
+    type="text"
+    placeholder="Enter Folder Name"
+    value={folderName}
+    onChange={(e) => setFolderName(e.target.value)}
+    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+    autoComplete="off"
+  />
+  {folderName && folderSuggestions.length > 0 && (
+    <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded shadow max-h-40 overflow-y-auto">
+      {folderSuggestions
+        .filter(name => name.toLowerCase().includes(folderName.toLowerCase()))
+        .map((name, idx) => (
+          <li
+            key={idx}
+            onClick={() => setFolderName(name)}
+            className="px-3 py-1 hover:bg-indigo-100 cursor-pointer"
+          >
+            {name}
+          </li>
+        ))}
+    </ul>
+  )}
+</div>
+
 
       {/* Upload Section */}
       <div className="relative mb-4">

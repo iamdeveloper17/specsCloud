@@ -126,4 +126,15 @@ router.get('/file-url/:id', async (req, res) => {
   }
 });
 
+router.get('/folder-names', async (req, res) => {
+  try {
+    const folders = await Catalogue.distinct('folderName');
+    res.json(folders);
+  } catch (error) {
+    console.error('Error fetching folder names:', error.message);
+    res.status(500).json({ error: 'Failed to fetch folder names' });
+  }
+});
+
+
 module.exports = router;
