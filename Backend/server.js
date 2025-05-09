@@ -2,6 +2,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
+const path = require('path');
+const fs = require('fs');
 
 const app = express();
 
@@ -30,8 +32,16 @@ app.use('/api/admin', adminRoutes);  // 🔥 Important
 const specificationRoutes = require('./routes/specification'); // 👈 import your specification routes
 app.use('/api/specification', specificationRoutes); // 👈 add this line to mount it on /api/specification
 
-const path = require('path');
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// ✅ Ensure uploads folder exists at runtime
+const uploadsPath = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsPath)) {
+  fs.mkdirSync(uploadsPath);
+  console.log('📂 Created uploads/ folder');
+}
+
+app.use('/uploads', express.static(uploadsPath));
+
 
 // Start server
 const PORT = process.env.PORT || 8080;
