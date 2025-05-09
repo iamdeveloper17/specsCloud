@@ -7,18 +7,14 @@ const Catalogue = require('../models/Catalogue');
 const path = require('path');
 
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/'); // Store files in /uploads
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + '-' + file.originalname);
-  }
+  destination: (req, file, cb) => cb(null, 'uploads/'),
+  filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname),
 });
 
 const upload = multer({ storage });
 
-// Upload Route
 router.post('/upload', upload.array('files'), uploadFile);
+
 
 // Get Files Route
 router.get('/files', async (req, res) => {
@@ -40,9 +36,9 @@ router.get('/download/:id', async (req, res) => {
     const file = await Catalogue.findById(req.params.id);
     if (!file) return res.status(404).json({ message: 'File not found' });
 
-    res.setHeader('Content-Type', file.fileType);
-    res.setHeader('Content-Disposition', `inline; filename="${file.fileName}"`);
-    res.send(file.fileData);
+    const filePath = path.join(__dirname, '../uploads', file.fileName);
+    res.download(filePath, file.fileName); // stream the real file
+
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ message: 'Download failed' });

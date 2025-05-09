@@ -3,22 +3,27 @@ const Catalogue = require('../models/Catalogue');
 const uploadFile = async (req, res) => {
   try {
     const category = req.body.category || 'N/A';
-    const folderName = req.body.folderName || 'General'; // ✅ Get folderName from body, fallback if missing
+    const folderName = req.body.folderName || 'General';
+    const userId = req.body.userId;
+    const userEmail = req.body.userEmail;
 
-    const files = req.files; // req.files is an array
+    const files = req.files;
+
+    if (!files || files.length === 0) {
+      return res.status(400).json({ message: 'No files uploaded' });
+    }
 
     const uploadedFiles = [];
 
     for (const file of files) {
       const newFile = new Catalogue({
-        fileName: file.originalname,
+        fileName: file.filename,  // ✅ diskStorage uses this
         fileType: file.mimetype,
         fileSize: file.size,
-        fileData: file.buffer,
-        uploadedById: req.body.userId,
-        uploadedByEmail: req.body.userEmail,
-        category: category,
-        folderName: folderName, // ✅ Important: save folder name also
+        uploadedById: userId,
+        uploadedByEmail: userEmail,
+        category,
+        folderName,
       });
 
       const savedFile = await newFile.save();
@@ -26,9 +31,10 @@ const uploadFile = async (req, res) => {
     }
 
     res.status(201).json({ message: 'Files uploaded successfully', files: uploadedFiles });
+
   } catch (error) {
-    console.error('Upload error:', error);
-    res.status(500).json({ message: 'File upload failed' });
+    console.error('Upload error:', error); // ✅ shows crash reason
+    res.status(500).json({ message: 'File upload failed', error: error.message });
   }
 };
 

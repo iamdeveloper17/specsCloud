@@ -4,7 +4,6 @@ const catalogueSchema = new mongoose.Schema({
   fileName: String,
   fileType: String,
   fileSize: Number,
-  fileData: Buffer,
   folderName: String, // ✅
   uploadedById: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   uploadedByEmail: String,
