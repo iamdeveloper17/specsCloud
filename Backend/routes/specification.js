@@ -103,6 +103,20 @@ router.get('/folders', async (req, res) => {
   }
 });
 
+// In routes/catalogue.js or specification.js
+router.get('/file-url/:id', async (req, res) => {
+    const fileId = req.params.id;
+    const file = await File.findById(fileId); // Assuming Mongoose
+
+    if (!file) {
+        return res.status(404).json({ error: 'File not found' });
+    }
+
+    // Replace with your file storage logic
+    const publicUrl = `https://specscloud-1.onrender.com/uploads/${file.fileName}`;
+
+    res.json({ url: publicUrl });
+});
 
 
 // Rename a folder

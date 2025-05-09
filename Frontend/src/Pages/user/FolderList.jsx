@@ -61,35 +61,37 @@ const FolderList = () => {
         }
     };
 
-    const handleViewFile = async (file) => {
-        const baseApi = file.source === 'specification' ? 'specification' : 'catalogue';
-        try {
-            const res = await axios.get(`https://specscloud-1.onrender.com/api/${baseApi}/download/${file._id}`, {
-                responseType: 'blob',
-            });
-            const fileType = res.headers['content-type'];
-            const blob = new Blob([res.data], { type: fileType });
-            const url = window.URL.createObjectURL(blob);
+const handleViewFile = async (file) => {
+    const baseApi = file.source === 'specification' ? 'specification' : 'catalogue';
+    try {
+        // STEP 1: Get public file URL
+        const res = await axios.get(`https://specscloud-1.onrender.com/api/${baseApi}/file-url/${file._id}`);
+        const fileUrl = res.data.url;
+        const ext = file.fileName.split('.').pop().toLowerCase();
 
-            if (fileType.includes('msword') || fileType.includes('officedocument') || fileType.includes('presentation') || fileType.includes('spreadsheet')) {
-                const encodedUrl = encodeURIComponent(url);
-                window.open(`https://view.officeapps.live.com/op/embed.aspx?src=${encodedUrl}`, '_blank');
-            } else if (fileType === 'application/pdf' || fileType.startsWith('image/')) {
-                window.open(url, '_blank');
-            } else {
-                const link = document.createElement('a');
-                link.href = url;
-                link.setAttribute('download', file.fileName);
-                document.body.appendChild(link);
-                link.click();
-                link.remove();
-                toast.info('File downloaded (preview not available)');
-            }
-        } catch (error) {
-            console.error(error.message);
-            toast.error('Failed to view file');
+        // STEP 2: Use Office Viewer for Word/Excel/PPT
+        if (['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx'].includes(ext)) {
+            const viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fileUrl)}`;
+            window.open(viewerUrl, '_blank');
+        } else if (ext === 'pdf' || fileUrl.includes('.pdf')) {
+            window.open(fileUrl, '_blank');
+        } else if (fileUrl.startsWith('http') && (ext === 'png' || ext === 'jpg' || ext === 'jpeg')) {
+            window.open(fileUrl, '_blank');
+        } else {
+            const link = document.createElement('a');
+            link.href = fileUrl;
+            link.setAttribute('download', file.fileName);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            toast.info('File downloaded');
         }
-    };
+    } catch (error) {
+        console.error(error.message);
+        toast.error('Failed to preview file');
+    }
+};
+
 
     const handleDownloadFile = async (file) => {
         const baseApi = file.source === 'specification' ? 'specification' : 'catalogue';

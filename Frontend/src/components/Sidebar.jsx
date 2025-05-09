@@ -1,7 +1,7 @@
 // src/components/Sidebar.jsx
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { FaHome, FaFolderOpen, FaSignOutAlt } from 'react-icons/fa'; // ✨ No user icon here
+import { FaHome, FaFolderOpen, FaSignOutAlt, FaFileAlt, FaFolder } from 'react-icons/fa'; // ✨ No user icon here
 import logo from '../images/logo.png';
 
 const Sidebar = ({ onClose }) => {
@@ -10,8 +10,8 @@ const Sidebar = ({ onClose }) => {
   const navItems = [
     { name: 'Dashboard', icon: <FaHome />, path: '/dashboard' },
     { name: 'Catalogue', icon: <FaFolderOpen />, path: '/catalogue' },
-    { name: 'Specification', icon: <FaFolderOpen />, path: '/specification' },
-    { name: 'Folder', icon: <FaFolderOpen />, path: '/folder' },
+  { name: 'Specification', icon: <FaFileAlt />, path: '/specification' }, // Document-style icon
+  { name: 'Folder', icon: <FaFolder />, path: '/folder' },
   ];
 
   const handleLogout = () => {
