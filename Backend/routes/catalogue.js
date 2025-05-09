@@ -3,9 +3,15 @@ const router = express.Router();
 const multer = require('multer');
 const { uploadFile } = require('../controllers/catalogueController');
 const Catalogue = require('../models/Catalogue');
-const Specification = require('../models/Specification'); // ✅ Important
 
-const storage = multer.memoryStorage();
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/'); // store in server folder
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname);
+  }
+});
 const upload = multer({ storage: storage });
 
 // Upload Route
@@ -107,17 +113,23 @@ router.get('/folders', async (req, res) => {
 
 // In routes/catalogue.js or specification.js
 router.get('/file-url/:id', async (req, res) => {
-    const fileId = req.params.id;
-    const file = await File.findById(fileId); // Assuming Mongoose
+    try {
+        const file = await Catalogue.findById(req.params.id);
 
-    if (!file) {
-        return res.status(404).json({ error: 'File not found' });
+        if (!file) {
+            return res.status(404).json({ error: 'File not found' });
+        }
+
+        // Create Blob URL or fallback (since files are stored in DB)
+        const mime = file.fileType;
+        const base64 = file.fileData.toString('base64');
+        const dataUrl = `data:${mime};base64,${base64}`;
+
+        res.json({ url: dataUrl });
+    } catch (err) {
+        console.error('file-url error (catalogue):', err.message);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
-
-    // Replace with your file storage logic
-    const publicUrl = `https://specscloud-1.onrender.com/uploads/${file.fileName}`;
-
-    res.json({ url: publicUrl });
 });
 
 

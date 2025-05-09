@@ -4,7 +4,14 @@ const multer = require('multer');
 const { uploadFile } = require('../controllers/specificationController');
 const specification = require('../models/Specification'); // ✅ important
 
-const storage = multer.memoryStorage();
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/'); // store in server folder
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname);
+  }
+});
 const upload = multer({ storage: storage });
 
 // Correct Route for Upload
@@ -103,22 +110,6 @@ router.get('/folders', async (req, res) => {
   }
 });
 
-// In routes/catalogue.js or specification.js
-router.get('/file-url/:id', async (req, res) => {
-    const fileId = req.params.id;
-    const file = await File.findById(fileId); // Assuming Mongoose
-
-    if (!file) {
-        return res.status(404).json({ error: 'File not found' });
-    }
-
-    // Replace with your file storage logic
-    const publicUrl = `https://specscloud-1.onrender.com/uploads/${file.fileName}`;
-
-    res.json({ url: publicUrl });
-});
-
-
 // Rename a folder
 router.put('/folders/:folderName', async (req, res) => {
   const { newFolderName } = req.body;
@@ -145,6 +136,25 @@ router.delete('/folders/:folderName', async (req, res) => {
     console.error(error.message);
     res.status(500).send('Delete folder failed');
   }
+});
+
+router.get('/file-url/:id', async (req, res) => {
+    try {
+        const file = await specification.findById(req.params.id);
+
+        if (!file) {
+            return res.status(404).json({ error: 'File not found' });
+        }
+
+        const mime = file.fileType;
+        const base64 = file.fileData.toString('base64');
+        const dataUrl = `data:${mime};base64,${base64}`;
+
+        res.json({ url: dataUrl });
+    } catch (err) {
+        console.error('file-url error (specification):', err.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
 });
 
 
