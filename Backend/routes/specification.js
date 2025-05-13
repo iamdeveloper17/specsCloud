@@ -24,7 +24,7 @@ router.post('/upload', upload.array('files'), uploadFile);
 router.get('/files', async (req, res) => {
   const { userId } = req.query;
   try {
-    const files = userId 
+    const files = userId
       ? await specification.find({ uploadedById: userId }, 'fileName fileType fileSize category folderName')
       : await specification.find({}, 'fileName fileType fileSize category folderName');
     res.status(200).json(files);
@@ -41,7 +41,9 @@ router.get('/download/:id', async (req, res) => {
 
     res.setHeader('Content-Type', file.fileType);
     res.setHeader('Content-Disposition', `inline; filename="${file.fileName}"`);
-    res.send(file.fileData);
+    const filePath = path.join(__dirname, '../uploads', file.fileName);
+    res.download(filePath, file.fileName);
+
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ message: 'Download failed' });
