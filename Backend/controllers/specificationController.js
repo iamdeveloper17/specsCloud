@@ -11,7 +11,7 @@ const uploadFile = async (req, res) => {
 
     for (const file of files) {
       const newFile = new Specification({
-        fileName: file.originalname,
+        fileName: file.filename,
         fileType: file.mimetype,
         fileSize: file.size,
         fileData: file.buffer,

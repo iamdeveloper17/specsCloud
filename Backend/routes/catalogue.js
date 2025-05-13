@@ -1,5 +1,5 @@
 const express = require('express');
-const app = express();
+const router = express.Router();
 const multer = require('multer');
 const { uploadFile } = require('../controllers/catalogueController');
 const Catalogue = require('../models/Catalogue');
@@ -13,11 +13,10 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-app.post('/upload', upload.array('files'), uploadFile);
-// app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+router.post('/upload', upload.array('files'), uploadFile);
 
 // Get Files Route
-app.get('/files', async (req, res) => {
+router.get('/files', async (req, res) => {
   const { userId } = req.query;
   try {
     const files = userId 
@@ -31,7 +30,7 @@ app.get('/files', async (req, res) => {
 });
 
 // Download File
-app.get('/download/:id', async (req, res) => {
+router.get('/download/:id', async (req, res) => {
   try {
     const file = await Catalogue.findById(req.params.id);
     if (!file) return res.status(404).json({ message: 'File not found' });
@@ -46,7 +45,7 @@ app.get('/download/:id', async (req, res) => {
 });
 
 // Delete File
-app.delete('/delete/:id', async (req, res) => {
+router.delete('/delete/:id', async (req, res) => {
   try {
     await Catalogue.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: 'File deleted successfully' });
@@ -57,7 +56,7 @@ app.delete('/delete/:id', async (req, res) => {
 });
 
 // Rename File
-app.put('/rename/:id', async (req, res) => {
+router.put('/rename/:id', async (req, res) => {
   const { newName } = req.body;
   if (!newName || newName.trim() === '') {
     return res.status(400).send('Invalid file name');
@@ -77,7 +76,7 @@ app.put('/rename/:id', async (req, res) => {
 });
 
 // Final 🛠 Merge Folders Route
-app.get('/folders', async (req, res) => {
+router.get('/folders', async (req, res) => {
   try {
     const catalogueFiles = await Catalogue.find({}, 'fileName fileType fileSize folderName category');
 
@@ -111,7 +110,7 @@ app.get('/folders', async (req, res) => {
 });
 
 // In routes/catalogue.js or specification.js
-app.get('/file-url/:id', async (req, res) => {
+router.get('/file-url/:id', async (req, res) => {
   try {
     const file = await Catalogue.findById(req.params.id);
     if (!file || !file.fileName) {
@@ -126,7 +125,7 @@ app.get('/file-url/:id', async (req, res) => {
   }
 });
 
-app.get('/folder-names', async (req, res) => {
+router.get('/folder-names', async (req, res) => {
   try {
     const folders = await Catalogue.distinct('folderName');
     res.json(folders);
@@ -137,4 +136,4 @@ app.get('/folder-names', async (req, res) => {
 });
 
 
-module.exports = app;
+module.exports = router;

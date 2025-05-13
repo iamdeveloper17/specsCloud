@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
-const path = require('path');
+const path = require('path'); // ✅ only once
 const fs = require('fs');
 
 const app = express();
@@ -27,23 +27,20 @@ const catalogueRoutes = require('./routes/catalogue');
 app.use('/api/catalogue', catalogueRoutes);
 
 const adminRoutes = require('./routes/admin');
-app.use('/api/admin', adminRoutes);  // 🔥 Important
+app.use('/api/admin', adminRoutes);
 
-const specificationRoutes = require('./routes/specification'); // 👈 import your specification routes
-app.use('/api/specification', specificationRoutes); // 👈 add this line to mount it on /api/specification
+const specificationRoutes = require('./routes/specification');
+app.use('/api/specification', specificationRoutes);
 
-
-// ✅ Ensure uploads folder exists at runtime
+// ✅ Ensure uploads folder exists
 const uploadsPath = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsPath)) {
   fs.mkdirSync(uploadsPath);
   console.log('📂 Created uploads/ folder');
 }
 
+// ✅ Serve static files
 app.use('/uploads', express.static(uploadsPath));
-
-const path = require('path');
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Start server
 const PORT = process.env.PORT || 8080;
