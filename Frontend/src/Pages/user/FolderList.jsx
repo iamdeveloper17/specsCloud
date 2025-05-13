@@ -9,6 +9,11 @@ const FolderList = () => {
     const [editingFolder, setEditingFolder] = useState(null);
     const [newFolderName, setNewFolderName] = useState('');
     const [expandedFolders, setExpandedFolders] = useState([]);
+    const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
+    const [renameFileId, setRenameFileId] = useState(null);
+    const [renameFileName, setRenameFileName] = useState('');
+    const [renameFileSource, setRenameFileSource] = useState(''); // 'catalogue' or 'specification'
+
 
     // 🛠 Fetch BOTH catalogue and specification folders
     const fetchFolders = async () => {
@@ -61,48 +66,48 @@ const FolderList = () => {
         }
     };
 
-const handleViewFile = async (file) => {
-    const baseApi = file.source === 'specification' ? 'specification' : 'catalogue';
-    try {
-        // Step 1: Get file blob
-        const res = await axios.get(`https://specscloud-1.onrender.com/api/${baseApi}/download/${file._id}`, {
-            responseType: 'blob',
-        });
+    const handleViewFile = async (file) => {
+        const baseApi = file.source === 'specification' ? 'specification' : 'catalogue';
+        try {
+            // Step 1: Get file blob
+            const res = await axios.get(`https://specscloud-1.onrender.com/api/${baseApi}/download/${file._id}`, {
+                responseType: 'blob',
+            });
 
-        const fileType = res.headers['content-type'];
-        const ext = file.fileName.split('.').pop().toLowerCase();
+            const fileType = res.headers['content-type'];
+            const ext = file.fileName.split('.').pop().toLowerCase();
 
-        const blob = new Blob([res.data], { type: fileType });
-        const url = window.URL.createObjectURL(blob);
+            const blob = new Blob([res.data], { type: fileType });
+            const url = window.URL.createObjectURL(blob);
 
-        if (['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx'].includes(ext)) {
-            // ❗Office Viewer requires a public HTTP URL, so this won't work
-            toast.warning('Office preview not supported — file will download instead');
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', file.fileName);
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-        } else if (ext === 'pdf' || fileType === 'application/pdf') {
-            window.open(url, '_blank');
-        } else if (fileType.startsWith('image/')) {
-            window.open(url, '_blank');
-        } else {
-            // Default to download
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', file.fileName);
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
+            if (['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx'].includes(ext)) {
+                // ❗Office Viewer requires a public HTTP URL, so this won't work
+                toast.warning('Office preview not supported — file will download instead');
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', file.fileName);
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+            } else if (ext === 'pdf' || fileType === 'application/pdf') {
+                window.open(url, '_blank');
+            } else if (fileType.startsWith('image/')) {
+                window.open(url, '_blank');
+            } else {
+                // Default to download
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', file.fileName);
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+            }
+
+        } catch (error) {
+            console.error(error.message);
+            toast.error('Failed to preview file');
         }
-
-    } catch (error) {
-        console.error(error.message);
-        toast.error('Failed to preview file');
-    }
-};
+    };
 
 
     const handleDownloadFile = async (file) => {
@@ -124,6 +129,46 @@ const handleViewFile = async (file) => {
             toast.error('Download failed');
         }
     };
+
+    const handleDeleteFile = async (file) => {
+        const baseApi = file.source === 'specification' ? 'specification' : 'catalogue';
+        if (!window.confirm(`Are you sure you want to delete ${file.fileName}?`)) return;
+        try {
+            await axios.delete(`https://specscloud-1.onrender.com/api/${baseApi}/delete/${file._id}`);
+            toast.success('File deleted successfully');
+            fetchFolders();
+        } catch (error) {
+            console.error(error.message);
+            toast.error('Delete failed');
+        }
+    };
+
+    const openRenameModal = (file) => {
+        setRenameFileId(file._id);
+        setRenameFileName(file.fileName);
+        setRenameFileSource(file.source);
+        setIsRenameModalOpen(true);
+    };
+
+    const handleRenameSubmit = async () => {
+        if (!renameFileName.trim()) {
+            toast.error('File name cannot be empty');
+            return;
+        }
+
+        try {
+            await axios.put(`https://specscloud-1.onrender.com/api/${renameFileSource}/rename/${renameFileId}`, {
+                newName: renameFileName,
+            });
+            toast.success('File renamed successfully');
+            setIsRenameModalOpen(false);
+            fetchFolders();
+        } catch (error) {
+            console.error(error.message);
+            toast.error('Rename failed');
+        }
+    };
+
 
     return (
         <div className="p-6 max-w-6xl mx-auto bg-white shadow-md rounded-lg mt-6">
@@ -174,8 +219,11 @@ const handleViewFile = async (file) => {
                                                                     </div>
                                                                     <div className="flex items-center gap-2 mt-2 md:mt-0">
                                                                         <button onClick={() => handleViewFile(file)} className="bg-blue-500 text-white text-xs px-3 py-1 rounded hover:bg-blue-600">View</button>
+                                                                        <button onClick={() => openRenameModal(file)} className="bg-yellow-500 text-white text-xs px-3 py-1 rounded hover:bg-yellow-600">Rename</button>
                                                                         <button onClick={() => handleDownloadFile(file)} className="bg-green-500 text-white text-xs px-3 py-1 rounded hover:bg-green-600">Download</button>
+                                                                        <button onClick={() => handleDeleteFile(file)} className="bg-red-600 text-white text-xs px-3 py-1 rounded hover:bg-red-700">Delete</button>
                                                                     </div>
+
                                                                 </div>
                                                             ))
                                                         ) : (
@@ -192,6 +240,23 @@ const handleViewFile = async (file) => {
                     </table>
                 </div>
             </div>
+            {isRenameModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg w-80">
+                        <h2 className="text-xl font-semibold mb-4">Rename File</h2>
+                        <input
+                            type="text"
+                            value={renameFileName}
+                            onChange={(e) => setRenameFileName(e.target.value)}
+                            className="border border-gray-300 rounded w-full px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
+                        <div className="flex justify-end space-x-2">
+                            <button onClick={() => setIsRenameModalOpen(false)} className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">Cancel</button>
+                            <button onClick={handleRenameSubmit} className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Rename</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

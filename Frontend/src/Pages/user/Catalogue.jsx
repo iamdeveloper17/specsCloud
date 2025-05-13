@@ -160,22 +160,6 @@ const Catalogue = () => {
     setIsRenameModalOpen(true);
   };
 
-  const handleView = async (id, fileType) => {
-    try {
-      const res = await axios.get(`https://specscloud-1.onrender.com/api/catalogue/download/${id}`, {
-        responseType: 'blob',
-      });
-      const blob = new Blob([res.data], { type: fileType });
-      const url = window.URL.createObjectURL(blob);
-      setViewFileUrl(url);
-      setViewFileType(fileType);
-      setIsViewModalOpen(true);
-    } catch (error) {
-      console.error(error.message);
-      toast.error('Failed to load file for viewing');
-    }
-  };
-
   // 🔥 Filtered files based on selected view category
   const filteredFiles = viewCategory === 'All' ? files : files.filter(file => file.category === viewCategory);
 
