@@ -311,12 +311,12 @@ const Catalogue = () => {
                     <td className="py-2 px-2 sm:px-4">
                       <div className="flex flex-wrap gap-1 sm:gap-2">
 
-<button
-  onClick={() => navigate('/view-file', { state: { file } })}
-  className="bg-blue-500 text-white px-2 py-1 rounded"
->
-  View
-</button>
+                        <button
+                          onClick={() => navigate('/view-file', { state: { file } })}
+                          className="bg-blue-500 text-white px-2 py-1 rounded"
+                        >
+                          View
+                        </button>
 
                         <button onClick={() => openRenameModal(file)} className="bg-yellow-500 text-white px-2 py-1 rounded text-xs sm:text-sm hover:bg-yellow-600">Rename</button>
                         <button onClick={() => handleDownload(file._id, file.fileName)} className="bg-green-600 text-white px-2 py-1 rounded text-xs sm:text-sm hover:bg-green-700">Download</button>

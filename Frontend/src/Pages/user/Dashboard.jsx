@@ -5,32 +5,33 @@ const Dashboard = () => {
   const [userName, setUserName] = useState('');
 
   useEffect(() => {
-    // Assuming you have stored user name during login
-    const name = localStorage.getItem('userName') || 'User'; // fallback if not found
+    const name = localStorage.getItem('userName') || 'User';
     setUserName(name);
   }, []);
 
   return (
-    <div className="p-6 sm:p-10 min-h-[100vh] bg-gradient-to-br from-indigo-50 to-purple-100">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 p-4 sm:p-6 md:p-10 flex flex-col items-center">
+      
       {/* Page Title */}
-      <h2 className="text-4xl font-extrabold text-indigo-800 mb-6 text-center">
+      <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-indigo-800 mb-4 text-center">
         Welcome, {userName} 👋
-      </h2>
+      </h1>
 
-      {/* Beautiful Welcome Message */}
-      <p className="text-center text-lg text-gray-700 max-w-2xl mx-auto mb-8">
-        This is your personal dashboard. Here, you can easily upload, view, and manage your catalog files. 
-        Stay organized, track your activity, and make the most out of your SpecsCloud experience!
+      {/* Subheading */}
+      <p className="text-center text-base sm:text-lg md:text-xl text-gray-700 max-w-3xl mb-8 px-4">
+        This is your personal dashboard. Easily upload, view, and manage your catalog and specification files.
+        Stay organized, track your uploads, and get the most out of your SpecsCloud experience.
       </p>
 
-      {/* Quick Tips Section */}
-      <div className="bg-white shadow-lg rounded-2xl p-6 max-w-3xl mx-auto">
-        <h3 className="text-2xl font-bold text-purple-700 mb-4">Quick Tips 💡</h3>
-        <ul className="list-disc list-inside text-gray-600 space-y-2">
-          <li>📂 Upload your catalog files easily under the "Catalogue" tab.</li>
-          <li>🔍 Quickly view and download your uploaded files anytime.</li>
-          <li>🛡️ Your data is secure and accessible only by you.</li>
-          <li>🚀 Stay tuned for new features and improvements!</li>
+      {/* Quick Tips Card */}
+      <div className="w-full max-w-4xl bg-white shadow-xl rounded-2xl p-6 sm:p-8 transition-all duration-300">
+        <h2 className="text-xl sm:text-2xl font-bold text-purple-700 mb-4">Quick Tips 💡</h2>
+        <ul className="list-disc pl-5 text-gray-600 space-y-2 text-sm sm:text-base leading-relaxed">
+          <li>📂 Use the <strong>"Catalogue"</strong> or <strong>"Specification"</strong> tab to upload and manage files.</li>
+          <li>🔍 You can preview PDFs and images directly in your browser.</li>
+          <li>📝 Use the rename feature to better organize your files.</li>
+          <li>🛡️ Your uploads are private and secure—only visible to your account.</li>
+          <li>🚀 New features are on the way—keep checking back!</li>
         </ul>
       </div>
     </div>

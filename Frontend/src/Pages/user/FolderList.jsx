@@ -67,48 +67,31 @@ const FolderList = () => {
     };
 
     const handleViewFile = async (file) => {
-        const baseApi = file.source === 'specification' ? 'specification' : 'catalogue';
+        const publicUrl = `https://specscloud-1.onrender.com/uploads/${file.fileName}`;
+        const ext = file.fileName.split('.').pop().toLowerCase();
+
         try {
-            // Step 1: Get file blob
-            const res = await axios.get(`https://specscloud-1.onrender.com/api/${baseApi}/download/${file._id}`, {
-                responseType: 'blob',
-            });
-
-            const fileType = res.headers['content-type'];
-            const ext = file.fileName.split('.').pop().toLowerCase();
-
-            const blob = new Blob([res.data], { type: fileType });
-            const url = window.URL.createObjectURL(blob);
-
             if (['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx'].includes(ext)) {
-                // ❗Office Viewer requires a public HTTP URL, so this won't work
-                toast.warning('Office preview not supported — file will download instead');
-                const link = document.createElement('a');
-                link.href = url;
-                link.setAttribute('download', file.fileName);
-                document.body.appendChild(link);
-                link.click();
-                link.remove();
-            } else if (ext === 'pdf' || fileType === 'application/pdf') {
-                window.open(url, '_blank');
-            } else if (fileType.startsWith('image/')) {
-                window.open(url, '_blank');
+                const viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(publicUrl)}`;
+                window.open(viewerUrl, '_blank');
+            } else if (ext === 'pdf') {
+                window.open(publicUrl, '_blank');
+            } else if (file.fileType && file.fileType.startsWith('image/')) {
+                window.open(publicUrl, '_blank');
             } else {
-                // Default to download
+                // Fallback: Download
                 const link = document.createElement('a');
-                link.href = url;
+                link.href = publicUrl;
                 link.setAttribute('download', file.fileName);
                 document.body.appendChild(link);
                 link.click();
                 link.remove();
             }
-
         } catch (error) {
             console.error(error.message);
             toast.error('Failed to preview file');
         }
     };
-
 
     const handleDownloadFile = async (file) => {
         const baseApi = file.source === 'specification' ? 'specification' : 'catalogue';
