@@ -19,7 +19,7 @@ const upload = multer({ storage });
 
 // Correct Route for Upload
 app.post('/upload', upload.array('files'), uploadFile);
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 // Other Routes (no change needed)
@@ -41,10 +41,8 @@ app.get('/download/:id', async (req, res) => {
     const file = await specification.findById(req.params.id);
     if (!file) return res.status(404).json({ message: 'File not found' });
 
-    res.setHeader('Content-Type', file.fileType);
-    res.setHeader('Content-Disposition', `inline; filename="${file.fileName}"`);
     const filePath = path.join(__dirname, '../uploads', file.fileName);
-    res.download(filePath, file.fileName);
+res.download(filePath, file.fileName); // Just like catalogue
 
   } catch (error) {
     console.error(error.message);
