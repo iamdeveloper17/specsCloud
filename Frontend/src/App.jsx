@@ -29,6 +29,8 @@ import AdminProtectedRoute from "./components/AdminProtectedRoute";
 import Specification from "./Pages/user/Specification";
 import FolderList from "./Pages/user/FolderList";
 import FileViewer from "./Pages/user/FileViewer";
+import AdminSpecification from "./Pages/admin/AdminSpecification";
+import AdminFolderList from "./Pages/admin/AdminFolderList";
 
 const App = () => {
   return (
@@ -47,12 +49,14 @@ const App = () => {
           <Route path="folder" element={<FolderList />} />
 
         </Route>
-<Route path="/view-file" element={<FileViewer />} />
+        <Route path="/view-file" element={<FileViewer />} />
 
         {/* Admin Layout Routes */}
         <Route path="/" element={<AdminProtectedRoute><AdminMainLayout /></AdminProtectedRoute>}>
           <Route path="admin-dashboard" element={<AdminDashboard />} />
           <Route path="admin-catalogue" element={<AdminCatalogue />} />
+          <Route path="admin-specification" element={<AdminSpecification />} />
+          <Route path="admin-folder" element={<AdminFolderList />} />
           <Route path="admin-users" element={<AdminUser />} />
         </Route>
 

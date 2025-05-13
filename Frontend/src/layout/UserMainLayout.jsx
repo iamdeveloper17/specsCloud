@@ -10,7 +10,7 @@ const UserMainLayout = () => {
   const closeSidebar = () => setSidebarOpen(false);
 
   return (
-<div className="flex min-h-screen w-full relative bg-gray-100 overflow-x-hidden overflow-y-auto">
+    <div className="flex min-h-screen w-full relative bg-gray-100 overflow-x-hidden overflow-y-auto">
 
 
       {/* Hamburger icon (mobile only) */}

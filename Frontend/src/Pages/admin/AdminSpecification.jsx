@@ -13,7 +13,7 @@ const formatFileType = (type = '') => {
   return type;
 };
 
-const AdminCatalogue = () => {
+const AdminSpecification = () => {
   const [files, setFiles] = useState([]);
   const [viewCategory, setViewCategory] = useState('All');
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
@@ -22,7 +22,7 @@ const AdminCatalogue = () => {
 
   const fetchAllFiles = async () => {
     try {
-      const res = await axios.get('https://specscloud-1.onrender.com/api/catalogue/files');
+      const res = await axios.get('https://specscloud-1.onrender.com/api/specification/files');
       setFiles(res.data);
     } catch (error) {
       console.error(error.message);
@@ -32,7 +32,7 @@ const AdminCatalogue = () => {
 
   const handleDownload = async (id, name) => {
     try {
-      const res = await axios.get(`https://specscloud-1.onrender.com/api/catalogue/download/${id}`, {
+      const res = await axios.get(`https://specscloud-1.onrender.com/api/specification/download/${id}`, {
         responseType: 'blob',
       });
       const url = window.URL.createObjectURL(new Blob([res.data]));
@@ -52,7 +52,7 @@ const AdminCatalogue = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this file?')) return;
     try {
-      await axios.delete(`https://specscloud-1.onrender.com/api/catalogue/delete/${id}`);
+      await axios.delete(`https://specscloud-1.onrender.com/api/specification/delete/${id}`);
       toast.success('File deleted successfully');
       fetchAllFiles();
     } catch (error) {
@@ -62,8 +62,8 @@ const AdminCatalogue = () => {
   };
 
   const handleView = (file) => {
-    const fileUrl = `https://specscloud-1.onrender.com/uploads/${file.fileName}`;
-    setViewFileUrl(fileUrl);
+    const url = `https://specscloud-1.onrender.com/uploads/${file.fileName}`;
+    setViewFileUrl(url);
     setViewFileType(file.fileType);
     setIsViewModalOpen(true);
   };
@@ -76,33 +76,21 @@ const AdminCatalogue = () => {
 
   return (
     <div className="p-6 max-w-6xl mx-auto bg-white shadow-md rounded-lg mt-6">
-      <h2 className="text-2xl font-bold text-indigo-700 mb-4">All Uploaded Catalog Files (Admin View)</h2>
+      <h2 className="text-2xl font-bold text-indigo-700 mb-4">All Uploaded Specification Files (Admin View)</h2>
 
-      {/* Filter Tabs */}
       <div className="flex flex-wrap gap-2 mb-4">
-        <button
-          onClick={() => setViewCategory('All')}
-          className={`px-4 py-2 rounded-full border ${viewCategory === 'All' ? 'bg-indigo-600 text-white' : 'bg-gray-100'}`}
-        >
-          All
-        </button>
-        {categoryOptions.map((cat) => (
-          <button
-            key={cat}
-            onClick={() => setViewCategory(cat)}
-            className={`px-4 py-2 rounded-full border ${viewCategory === cat ? 'bg-indigo-600 text-white' : 'bg-gray-100'}`}
-          >
-            {cat}
-          </button>
+        <button onClick={() => setViewCategory('All')} className={`px-4 py-2 rounded-full border ${viewCategory === 'All' ? 'bg-indigo-600 text-white' : 'bg-gray-100'}`}>All</button>
+        {categoryOptions.map(cat => (
+          <button key={cat} onClick={() => setViewCategory(cat)} className={`px-4 py-2 rounded-full border ${viewCategory === cat ? 'bg-indigo-600 text-white' : 'bg-gray-100'}`}>{cat}</button>
         ))}
       </div>
 
       {/* Desktop Table */}
       <div className="hidden sm:block max-h-[500px] overflow-y-auto border border-gray-300 rounded">
-        <table className="min-w-full border-collapse text-sm">
+        <table className="min-w-full text-sm border-collapse">
           <thead className="bg-indigo-600 text-white sticky top-0 z-10">
             <tr>
-              <th className="py-2 px-4 text-left">File Name</th>
+              <th className="py-2 px-4 text-left">File</th>
               <th className="py-2 px-4 text-left">Category</th>
               <th className="py-2 px-4 text-left">Type</th>
               <th className="py-2 px-4 text-left">Size (KB)</th>
@@ -112,14 +100,12 @@ const AdminCatalogue = () => {
           <tbody>
             {filteredFiles.length === 0 ? (
               <tr>
-                <td colSpan="5" className="py-6 text-center text-gray-500">
-                  No catalogs uploaded yet!
-                </td>
+                <td colSpan="5" className="py-6 text-center text-gray-500">No specification files uploaded yet!</td>
               </tr>
             ) : (
-              filteredFiles.map((file) => (
+              filteredFiles.map(file => (
                 <tr key={file._id} className="border-b">
-                  <td className="py-2 px-4 truncate max-w-xs" title={file.fileName}>{file.fileName}</td>
+                  <td className="py-2 px-4 max-w-xs truncate" title={file.fileName}>{file.fileName}</td>
                   <td className="py-2 px-4">{file.category || 'N/A'}</td>
                   <td
                     className="py-2 px-4 max-w-[240px] overflow-hidden text-ellipsis whitespace-nowrap"
@@ -140,17 +126,17 @@ const AdminCatalogue = () => {
         </table>
       </div>
 
-      {/* Mobile Card View */}
+      {/* Mobile View */}
       <div className="sm:hidden space-y-4 mt-4">
         {filteredFiles.length === 0 ? (
-          <p className="text-center text-gray-500 py-6">No catalogs uploaded yet!</p>
+          <p className="text-center text-gray-500 py-6">No specification files uploaded yet!</p>
         ) : (
-          filteredFiles.map((file) => (
+          filteredFiles.map(file => (
             <div key={file._id} className="border rounded p-4 shadow text-sm bg-white">
-              <p><span className="font-semibold">📄 File:</span> {file.fileName}</p>
-              <p><span className="font-semibold">🏷️ Category:</span> {file.category || 'N/A'}</p>
-              <p><span className="font-semibold">📌 Type:</span> {formatFileType(file.fileType)}</p>
-              <p><span className="font-semibold">📦 Size:</span> {(file.fileSize / 1024).toFixed(2)} KB</p>
+              <p><strong>📄 File:</strong> {file.fileName}</p>
+              <p><strong>🏷️ Category:</strong> {file.category || 'N/A'}</p>
+              <p><strong>📌 Type:</strong> {formatFileType(file.fileType)}</p>
+              <p><strong>📦 Size:</strong> {(file.fileSize / 1024).toFixed(2)} KB</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 <button onClick={() => handleView(file)} className="bg-blue-500 text-white px-3 py-1 rounded text-xs">View</button>
                 <button onClick={() => handleDownload(file._id, file.fileName)} className="bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700">Download</button>
@@ -179,7 +165,7 @@ const AdminCatalogue = () => {
               <img src={viewFileUrl} alt="file" className="w-full h-auto" />
             )}
             {viewFileType === 'application/pdf' && (
-              <iframe src={viewFileUrl} title="PDF Viewer" type="application/pdf" className="w-full h-[80vh]" />
+              <iframe src={viewFileUrl} title="PDF Viewer" className="w-full h-[80vh]" />
             )}
             {(viewFileType.includes('word') || viewFileType.includes('presentation') || viewFileType.includes('excel')) && (
               <iframe
@@ -198,4 +184,4 @@ const AdminCatalogue = () => {
   );
 };
 
-export default AdminCatalogue;
+export default AdminSpecification;
