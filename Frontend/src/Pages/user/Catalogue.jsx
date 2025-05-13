@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom';
 
 const Catalogue = () => {
   const [files, setFiles] = useState([]);
@@ -24,33 +25,35 @@ const Catalogue = () => {
   const [folderSuggestions, setFolderSuggestions] = useState([]);
 
   const [showSuggestions, setShowSuggestions] = useState(false);
-const folderInputRef = useRef(null);
+  const folderInputRef = useRef(null);
 
-useEffect(() => {
-  const handleClickOutside = (e) => {
-    if (folderInputRef.current && !folderInputRef.current.contains(e.target)) {
-      setShowSuggestions(false);
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (folderInputRef.current && !folderInputRef.current.contains(e.target)) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+
+  useEffect(() => {
+    fetchFiles();
+    fetchFolderSuggestions();
+  }, []);
+
+  const fetchFolderSuggestions = async () => {
+    try {
+      const res = await axios.get('https://specscloud-1.onrender.com/api/catalogue/folder-names');
+      setFolderSuggestions(res.data || []);
+    } catch (error) {
+      console.error('Failed to fetch folder suggestions:', error.message);
     }
   };
-
-  document.addEventListener('mousedown', handleClickOutside);
-  return () => document.removeEventListener('mousedown', handleClickOutside);
-}, []);
-
-
-useEffect(() => {
-  fetchFiles();
-  fetchFolderSuggestions();
-}, []);
-
-const fetchFolderSuggestions = async () => {
-  try {
-    const res = await axios.get('https://specscloud-1.onrender.com/api/catalogue/folder-names');
-    setFolderSuggestions(res.data || []);
-  } catch (error) {
-    console.error('Failed to fetch folder suggestions:', error.message);
-  }
-};
 
 
   const fetchFiles = async () => {
@@ -180,36 +183,36 @@ const fetchFolderSuggestions = async () => {
     <div className="p-6 max-w-6xl mx-auto bg-white shadow-md rounded-lg mt-6">
       <h2 className="text-2xl font-bold text-indigo-700 mb-4">Upload Catalog Files</h2>
 
-<div ref={folderInputRef} className="relative mb-4">
-  <input
-    type="text"
-    placeholder="Enter Folder Name"
-    value={folderName}
-    onChange={(e) => setFolderName(e.target.value)}
-    onFocus={() => setShowSuggestions(true)} // show on focus
-    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-    autoComplete="off"
-  />
+      <div ref={folderInputRef} className="relative mb-4">
+        <input
+          type="text"
+          placeholder="Enter Folder Name"
+          value={folderName}
+          onChange={(e) => setFolderName(e.target.value)}
+          onFocus={() => setShowSuggestions(true)} // show on focus
+          className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          autoComplete="off"
+        />
 
-  {showSuggestions && folderName && folderSuggestions.length > 0 && (
-    <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded shadow max-h-40 overflow-y-auto">
-      {folderSuggestions
-        .filter(name => name.toLowerCase().includes(folderName.toLowerCase()))
-        .map((name, idx) => (
-          <li
-            key={idx}
-            onClick={() => {
-              setFolderName(name);
-              setShowSuggestions(false); // close on click
-            }}
-            className="px-3 py-1 hover:bg-indigo-100 cursor-pointer"
-          >
-            {name}
-          </li>
-        ))}
-    </ul>
-  )}
-</div>
+        {showSuggestions && folderName && folderSuggestions.length > 0 && (
+          <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded shadow max-h-40 overflow-y-auto">
+            {folderSuggestions
+              .filter(name => name.toLowerCase().includes(folderName.toLowerCase()))
+              .map((name, idx) => (
+                <li
+                  key={idx}
+                  onClick={() => {
+                    setFolderName(name);
+                    setShowSuggestions(false); // close on click
+                  }}
+                  className="px-3 py-1 hover:bg-indigo-100 cursor-pointer"
+                >
+                  {name}
+                </li>
+              ))}
+          </ul>
+        )}
+      </div>
 
 
       {/* Upload Section */}
@@ -288,18 +291,18 @@ const fetchFolderSuggestions = async () => {
       {/* Files Table */}
       <div className="overflow-x-auto">
         <div className="max-h-[400px] overflow-y-auto border border-gray-300 rounded">
-<table className="min-w-full border border-gray-200 text-sm whitespace-nowrap">
+          <table className="min-w-full border border-gray-200 text-sm whitespace-nowrap">
 
-          <thead className="bg-indigo-600 text-white sticky top-0 z-10 text-xs sm:text-sm">
-  <tr>
-    <th className="py-2 px-2 sm:px-4 text-left font-medium">Folder</th>
-    <th className="py-2 px-2 sm:px-4 text-left font-medium">File</th>
-    <th className="py-2 px-2 sm:px-4 text-left font-medium">Category</th>
-    <th className="py-2 px-2 sm:px-4 text-left font-medium">Type</th>
-    <th className="py-2 px-2 sm:px-4 text-left font-medium">Size (KB)</th>
-    <th className="py-2 px-2 sm:px-4 text-left font-medium">Actions</th>
-  </tr>
-</thead>
+            <thead className="bg-indigo-600 text-white sticky top-0 z-10 text-xs sm:text-sm">
+              <tr>
+                <th className="py-2 px-2 sm:px-4 text-left font-medium">Folder</th>
+                <th className="py-2 px-2 sm:px-4 text-left font-medium">File</th>
+                <th className="py-2 px-2 sm:px-4 text-left font-medium">Category</th>
+                <th className="py-2 px-2 sm:px-4 text-left font-medium">Type</th>
+                <th className="py-2 px-2 sm:px-4 text-left font-medium">Size (KB)</th>
+                <th className="py-2 px-2 sm:px-4 text-left font-medium">Actions</th>
+              </tr>
+            </thead>
 
             <tbody>
               {filteredFiles.length === 0 ? (
@@ -310,26 +313,33 @@ const fetchFolderSuggestions = async () => {
                 </tr>
               ) : (
                 filteredFiles.map((file) => (
-                 <tr key={file._id} className="border-b hover:bg-gray-50">
-  <td className="py-2 px-2 sm:px-4">{file.folderName || 'N/A'}</td>
-  <td className="py-2 px-2 sm:px-4 truncate max-w-[150px]" title={file.fileName}>{file.fileName}</td>
-  <td className="py-2 px-2 sm:px-4">{file.category || 'N/A'}</td>
-<td
-  className="py-2 px-2 sm:px-4 max-w-[200px] truncate text-xs sm:text-sm"
-  title={file.fileType}
+                  <tr key={file._id} className="border-b hover:bg-gray-50">
+                    <td className="py-2 px-2 sm:px-4">{file.folderName || 'N/A'}</td>
+                    <td className="py-2 px-2 sm:px-4 truncate max-w-[150px]" title={file.fileName}>{file.fileName}</td>
+                    <td className="py-2 px-2 sm:px-4">{file.category || 'N/A'}</td>
+                    <td
+                      className="py-2 px-2 sm:px-4 max-w-[200px] truncate text-xs sm:text-sm"
+                      title={file.fileType}
+                    >
+                      {file.fileType || 'N/A'}
+                    </td>
+                    <td className="py-2 px-2 sm:px-4">{(file.fileSize / 1024).toFixed(2)}</td>
+                    <td className="py-2 px-2 sm:px-4">
+                      <div className="flex flex-wrap gap-1 sm:gap-2">
+
+<button
+  onClick={() => navigate('/view-file', { state: { file } })}
+  className="bg-blue-500 text-white px-2 py-1 rounded"
 >
-  {file.fileType || 'N/A'}
-</td>
-  <td className="py-2 px-2 sm:px-4">{(file.fileSize / 1024).toFixed(2)}</td>
-  <td className="py-2 px-2 sm:px-4">
-    <div className="flex flex-wrap gap-1 sm:gap-2">
-      <button onClick={() => handleView(file._id, file.fileType)} className="bg-blue-500 text-white px-2 py-1 rounded text-xs sm:text-sm hover:bg-blue-600">View</button>
-      <button onClick={() => openRenameModal(file)} className="bg-yellow-500 text-white px-2 py-1 rounded text-xs sm:text-sm hover:bg-yellow-600">Rename</button>
-      <button onClick={() => handleDownload(file._id, file.fileName)} className="bg-green-600 text-white px-2 py-1 rounded text-xs sm:text-sm hover:bg-green-700">Download</button>
-      <button onClick={() => handleDelete(file._id)} className="bg-red-600 text-white px-2 py-1 rounded text-xs sm:text-sm hover:bg-red-700">Delete</button>
-    </div>
-  </td>
-</tr>
+  View
+</button>
+
+                        <button onClick={() => openRenameModal(file)} className="bg-yellow-500 text-white px-2 py-1 rounded text-xs sm:text-sm hover:bg-yellow-600">Rename</button>
+                        <button onClick={() => handleDownload(file._id, file.fileName)} className="bg-green-600 text-white px-2 py-1 rounded text-xs sm:text-sm hover:bg-green-700">Download</button>
+                        <button onClick={() => handleDelete(file._id)} className="bg-red-600 text-white px-2 py-1 rounded text-xs sm:text-sm hover:bg-red-700">Delete</button>
+                      </div>
+                    </td>
+                  </tr>
 
                 ))
               )}

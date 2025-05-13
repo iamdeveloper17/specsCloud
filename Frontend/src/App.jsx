@@ -28,6 +28,7 @@ import UserProtectedRoute from "./components/UserProtectedRoute";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
 import Specification from "./Pages/user/Specification";
 import FolderList from "./Pages/user/FolderList";
+import FileViewer from "./Pages/user/FileViewer";
 
 const App = () => {
   return (
@@ -44,7 +45,9 @@ const App = () => {
           <Route path="catalogue" element={<Catalogue />} />
           <Route path="specification" element={<Specification />} />
           <Route path="folder" element={<FolderList />} />
+
         </Route>
+<Route path="/view-file" element={<FileViewer />} />
 
         {/* Admin Layout Routes */}
         <Route path="/" element={<AdminProtectedRoute><AdminMainLayout /></AdminProtectedRoute>}>
