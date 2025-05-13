@@ -102,6 +102,7 @@ const AdminCatalogue = () => {
         <table className="min-w-full border-collapse text-sm">
           <thead className="bg-indigo-600 text-white sticky top-0 z-10">
             <tr>
+              <th className="py-2 px-4 text-left">S no.</th>
               <th className="py-2 px-4 text-left">File Name</th>
               <th className="py-2 px-4 text-left">Category</th>
               <th className="py-2 px-4 text-left">Type</th>
@@ -117,8 +118,9 @@ const AdminCatalogue = () => {
                 </td>
               </tr>
             ) : (
-              filteredFiles.map((file) => (
+              filteredFiles.map((file, index) => (
                 <tr key={file._id} className="border-b">
+                  <td className="py-2 px-4">{index+1}</td>
                   <td className="py-2 px-4 truncate max-w-xs" title={file.fileName}>{file.fileName}</td>
                   <td className="py-2 px-4">{file.category || 'N/A'}</td>
                   <td

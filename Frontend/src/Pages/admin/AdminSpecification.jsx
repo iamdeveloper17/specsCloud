@@ -72,24 +72,39 @@ const AdminSpecification = () => {
     fetchAllFiles();
   }, []);
 
-  const filteredFiles = viewCategory === 'All' ? files : files.filter(file => file.category === viewCategory);
+  const filteredFiles = viewCategory === 'All'
+    ? files
+    : files.filter(file => file.category === viewCategory);
 
   return (
     <div className="p-6 max-w-6xl mx-auto bg-white shadow-md rounded-lg mt-6">
       <h2 className="text-2xl font-bold text-indigo-700 mb-4">All Uploaded Specification Files (Admin View)</h2>
 
+      {/* Filter Tabs */}
       <div className="flex flex-wrap gap-2 mb-4">
-        <button onClick={() => setViewCategory('All')} className={`px-4 py-2 rounded-full border ${viewCategory === 'All' ? 'bg-indigo-600 text-white' : 'bg-gray-100'}`}>All</button>
+        <button
+          onClick={() => setViewCategory('All')}
+          className={`px-4 py-2 rounded-full border ${viewCategory === 'All' ? 'bg-indigo-600 text-white' : 'bg-gray-100'}`}
+        >
+          All
+        </button>
         {categoryOptions.map(cat => (
-          <button key={cat} onClick={() => setViewCategory(cat)} className={`px-4 py-2 rounded-full border ${viewCategory === cat ? 'bg-indigo-600 text-white' : 'bg-gray-100'}`}>{cat}</button>
+          <button
+            key={cat}
+            onClick={() => setViewCategory(cat)}
+            className={`px-4 py-2 rounded-full border ${viewCategory === cat ? 'bg-indigo-600 text-white' : 'bg-gray-100'}`}
+          >
+            {cat}
+          </button>
         ))}
       </div>
 
-      {/* Desktop Table */}
+      {/* Desktop Table View */}
       <div className="hidden sm:block max-h-[500px] overflow-y-auto border border-gray-300 rounded">
         <table className="min-w-full text-sm border-collapse">
           <thead className="bg-indigo-600 text-white sticky top-0 z-10">
             <tr>
+              <th className="py-2 px-4 text-left">S.No.</th>
               <th className="py-2 px-4 text-left">File</th>
               <th className="py-2 px-4 text-left">Category</th>
               <th className="py-2 px-4 text-left">Type</th>
@@ -100,17 +115,17 @@ const AdminSpecification = () => {
           <tbody>
             {filteredFiles.length === 0 ? (
               <tr>
-                <td colSpan="5" className="py-6 text-center text-gray-500">No specification files uploaded yet!</td>
+                <td colSpan="6" className="py-6 text-center text-gray-500">
+                  No specification files uploaded yet!
+                </td>
               </tr>
             ) : (
-              filteredFiles.map(file => (
+              filteredFiles.map((file, index) => (
                 <tr key={file._id} className="border-b">
+                  <td className="py-2 px-4">{index + 1}</td>
                   <td className="py-2 px-4 max-w-xs truncate" title={file.fileName}>{file.fileName}</td>
                   <td className="py-2 px-4">{file.category || 'N/A'}</td>
-                  <td
-                    className="py-2 px-4 max-w-[240px] overflow-hidden text-ellipsis whitespace-nowrap"
-                    title={file.fileType}
-                  >
+                  <td className="py-2 px-4 max-w-[240px] overflow-hidden text-ellipsis whitespace-nowrap" title={file.fileType}>
                     {formatFileType(file.fileType)}
                   </td>
                   <td className="py-2 px-4">{(file.fileSize / 1024).toFixed(2)}</td>
@@ -126,13 +141,14 @@ const AdminSpecification = () => {
         </table>
       </div>
 
-      {/* Mobile View */}
+      {/* Mobile Card View */}
       <div className="sm:hidden space-y-4 mt-4">
         {filteredFiles.length === 0 ? (
           <p className="text-center text-gray-500 py-6">No specification files uploaded yet!</p>
         ) : (
-          filteredFiles.map(file => (
+          filteredFiles.map((file, index) => (
             <div key={file._id} className="border rounded p-4 shadow text-sm bg-white">
+              <p><strong>📌 S.No.:</strong> {index + 1}</p>
               <p><strong>📄 File:</strong> {file.fileName}</p>
               <p><strong>🏷️ Category:</strong> {file.category || 'N/A'}</p>
               <p><strong>📌 Type:</strong> {formatFileType(file.fileType)}</p>
@@ -153,12 +169,17 @@ const AdminSpecification = () => {
           <div className="bg-white p-4 rounded-lg shadow-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold">View File</h2>
-              <button onClick={() => {
-                setIsViewModalOpen(false);
-                window.URL.revokeObjectURL(viewFileUrl);
-                setViewFileUrl('');
-                setViewFileType('');
-              }} className="text-red-500 text-xl font-bold hover:text-red-700">×</button>
+              <button
+                onClick={() => {
+                  setIsViewModalOpen(false);
+                  window.URL.revokeObjectURL(viewFileUrl);
+                  setViewFileUrl('');
+                  setViewFileType('');
+                }}
+                className="text-red-500 text-xl font-bold hover:text-red-700"
+              >
+                ×
+              </button>
             </div>
 
             {viewFileType.startsWith('image/') && (
@@ -174,9 +195,13 @@ const AdminSpecification = () => {
                 className="w-full h-[80vh]"
               />
             )}
-            {!viewFileType.startsWith('image/') && viewFileType !== 'application/pdf' && !viewFileType.includes('word') && !viewFileType.includes('presentation') && !viewFileType.includes('excel') && (
-              <p className="text-center text-gray-500">Preview not available. Please download the file to view it.</p>
-            )}
+            {!viewFileType.startsWith('image/') &&
+              viewFileType !== 'application/pdf' &&
+              !viewFileType.includes('word') &&
+              !viewFileType.includes('presentation') &&
+              !viewFileType.includes('excel') && (
+                <p className="text-center text-gray-500">Preview not available. Please download the file to view it.</p>
+              )}
           </div>
         </div>
       )}
