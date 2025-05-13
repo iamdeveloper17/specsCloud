@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom';
 
 const Specification = () => {
   const [files, setFiles] = useState([]);
@@ -25,6 +26,8 @@ const Specification = () => {
 
   const [showSuggestions, setShowSuggestions] = useState(false);
   const folderInputRef = useRef(null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleClickOutside = (e) => {
