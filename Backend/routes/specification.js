@@ -1,5 +1,5 @@
 const express = require('express');
-const router = express.Router();
+const app = express();
 const multer = require('multer');
 const { uploadFile } = require('../controllers/specificationController');
 const specification = require('../models/Specification'); // ✅ important
@@ -18,10 +18,12 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // Correct Route for Upload
-router.post('/upload', upload.array('files'), uploadFile);
+app.post('/upload', upload.array('files'), uploadFile);
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 // Other Routes (no change needed)
-router.get('/files', async (req, res) => {
+app.get('/files', async (req, res) => {
   const { userId } = req.query;
   try {
     const files = userId
@@ -34,7 +36,7 @@ router.get('/files', async (req, res) => {
   }
 });
 
-router.get('/download/:id', async (req, res) => {
+app.get('/download/:id', async (req, res) => {
   try {
     const file = await specification.findById(req.params.id);
     if (!file) return res.status(404).json({ message: 'File not found' });
@@ -50,7 +52,7 @@ router.get('/download/:id', async (req, res) => {
   }
 });
 
-router.delete('/delete/:id', async (req, res) => {
+app.delete('/delete/:id', async (req, res) => {
   try {
     await specification.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: 'File deleted successfully' });
@@ -60,7 +62,7 @@ router.delete('/delete/:id', async (req, res) => {
   }
 });
 
-router.put('/rename/:id', async (req, res) => {
+app.put('/rename/:id', async (req, res) => {
   const { newName } = req.body;
   if (!newName || newName.trim() === '') {
     return res.status(400).send('Invalid file name');
@@ -82,7 +84,7 @@ router.put('/rename/:id', async (req, res) => {
 // Fetch all unique folders with file counts
 // 📂 Get list of folders + file names inside each folder
 // 📂 GET folders - Specification files
-router.get('/folders', async (req, res) => {
+app.get('/folders', async (req, res) => {
   try {
     const specificationFiles = await specification.find({}, 'fileName fileType fileSize folderName category');
 
@@ -116,7 +118,7 @@ router.get('/folders', async (req, res) => {
 });
 
 // Rename a folder
-router.put('/folders/:folderName', async (req, res) => {
+app.put('/folders/:folderName', async (req, res) => {
   const { newFolderName } = req.body;
   const { folderName } = req.params;
   if (!newFolderName || newFolderName.trim() === '') {
@@ -132,7 +134,7 @@ router.put('/folders/:folderName', async (req, res) => {
 });
 
 // Delete a folder
-router.delete('/folders/:folderName', async (req, res) => {
+app.delete('/folders/:folderName', async (req, res) => {
   const { folderName } = req.params;
   try {
     await specification.deleteMany({ folderName });
@@ -143,7 +145,7 @@ router.delete('/folders/:folderName', async (req, res) => {
   }
 });
 
-router.get('/file-url/:id', async (req, res) => {
+app.get('/file-url/:id', async (req, res) => {
   try {
     const file = await specification.findById(req.params.id);
     if (!file || !file.fileName) {
@@ -158,7 +160,7 @@ router.get('/file-url/:id', async (req, res) => {
   }
 });
 
-router.get('/folder-names', async (req, res) => {
+app.get('/folder-names', async (req, res) => {
   try {
     const folders = await specification.distinct('folderName');
     res.json(folders);
@@ -169,4 +171,4 @@ router.get('/folder-names', async (req, res) => {
 });
 
 
-module.exports = router;
+module.exports = app;
