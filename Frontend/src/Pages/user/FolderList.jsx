@@ -154,11 +154,13 @@ const FolderList = () => {
 
 
     return (
-        <div className="p-6 max-w-6xl mx-auto bg-white shadow-md rounded-lg mt-6">
+        <div className="p-4 sm:p-6 max-w-6xl mx-auto bg-white shadow-md rounded-lg mt-0 sm:mt-6">
+
             <h2 className="text-2xl font-bold text-indigo-700 mb-6">Folders Management</h2>
-            <div className="overflow-x-auto">
-                <div className="max-h-[600px] overflow-y-auto rounded-lg border border-gray-300">
-                    <table className="min-w-full text-sm">
+            <div className="overflow-x-auto w-full">
+                <div className="max-h-[590px] overflow-y-auto border border-gray-300 rounded">
+                    <table className="min-w-full table-fixed text-sm break-words">
+
                         <thead className="bg-indigo-600 text-white sticky top-0 z-10">
                             <tr>
                                 <th className="py-2 px-4 text-left">Folder Name</th>
@@ -193,15 +195,23 @@ const FolderList = () => {
                                                     <div className="p-4 space-y-3">
                                                         {folder.files.length > 0 ? (
                                                             folder.files.map((file) => (
-                                                                <div key={file._id} className="flex flex-col md:flex-row items-start md:items-center justify-between bg-white rounded px-4 py-2 shadow-sm">
+                                                                <div
+                                                                    key={file._id}
+                                                                    className="flex flex-col sm:flex-row sm:items-start sm:justify-between bg-white rounded-lg p-4 shadow-sm w-full break-words space-y-2 sm:space-y-0 sm:space-x-4"
+                                                                >
+
+
                                                                     <div className="flex flex-col">
-                                                                        <span className="font-medium text-gray-700">{file.fileName}</span>
+                                                                        <div className="break-words max-w-full w-full">
+                                                                            <span className="font-medium text-gray-700 break-all">{file.fileName}</span>
+                                                                        </div>
+
                                                                         <div className="text-xs text-gray-500">
                                                                             Type: <span className="font-semibold">{file.source || 'Catalogue'}</span> | Category: <span className="font-semibold">{file.category || 'N/A'}</span>
                                                                         </div>
                                                                     </div>
-                                                                    <div className="flex items-center gap-2 mt-2 md:mt-0">
-                                                                        <button onClick={() => handleViewFile(file)} className="bg-blue-500 text-white text-xs px-3 py-1 rounded hover:bg-blue-600">View</button>
+                                                                    <div className="flex flex-wrap items-center gap-2 mt-2 sm:mt-0">
+                                                                        <button onClick={() => handleViewFile(file)} className="bg-blue-500 text-white px-3 py-1 rounded text-xs sm:text-sm hover:bg-blue-600 transition">View</button>
                                                                         <button onClick={() => openRenameModal(file)} className="bg-yellow-500 text-white text-xs px-3 py-1 rounded hover:bg-yellow-600">Rename</button>
                                                                         <button onClick={() => handleDownloadFile(file)} className="bg-green-500 text-white text-xs px-3 py-1 rounded hover:bg-green-600">Download</button>
                                                                         <button onClick={() => handleDeleteFile(file)} className="bg-red-600 text-white text-xs px-3 py-1 rounded hover:bg-red-700">Delete</button>

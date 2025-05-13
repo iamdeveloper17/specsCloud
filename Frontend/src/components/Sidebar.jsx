@@ -23,7 +23,7 @@ const Sidebar = ({ onClose }) => {
 <aside className="h-full sm:min-h-screen w-full max-w-xs sm:w-64 bg-zinc-300 text-white flex flex-col justify-between shadow-lg">
   {/* Logo */}
   <div>
-    <div className="flex items-center justify-center px-4 py-4 bg-zinc-400 shadow-inner">
+    <div className="flex items-center justify-center px-4 py-4 shadow-inner">
       <img src={logo} alt="Logo" className="w-24 sm:w-28" />
     </div>
 

@@ -164,7 +164,7 @@ const Catalogue = () => {
   const filteredFiles = viewCategory === 'All' ? files : files.filter(file => file.category === viewCategory);
 
   return (
-    <div className="p-6 max-w-6xl mx-auto bg-white shadow-md rounded-lg mt-6">
+    <div className="w-full max-w-6xl mx-auto bg-white shadow-md rounded-lg mt-0 sm:mt-6 px-4 sm:px-6 overflow-x-hidden p-6">
       <h2 className="text-2xl font-bold text-indigo-700 mb-4">Upload Catalog Files</h2>
 
       <div ref={folderInputRef} className="relative mb-4">
@@ -273,10 +273,9 @@ const Catalogue = () => {
       </div>
 
       {/* Files Table */}
-      <div className="overflow-x-auto">
-        <div className="max-h-[400px] overflow-y-auto border border-gray-300 rounded">
-          <table className="min-w-full border border-gray-200 text-sm whitespace-nowrap">
-
+      <div className="w-full">
+        <div className="hidden sm:block max-h-[365px] overflow-y-auto border border-gray-300 rounded">
+          <table className="w-full text-sm border-collapse">
             <thead className="bg-indigo-600 text-white sticky top-0 z-10 text-xs sm:text-sm">
               <tr>
                 <th className="py-2 px-2 sm:px-4 text-left font-medium">Folder</th>
@@ -287,11 +286,10 @@ const Catalogue = () => {
                 <th className="py-2 px-2 sm:px-4 text-left font-medium">Actions</th>
               </tr>
             </thead>
-
             <tbody>
               {filteredFiles.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="py-6 text-center text-gray-500">
+                  <td colSpan="6" className="py-6 text-center text-gray-500">
                     No catalogs uploaded yet!
                   </td>
                 </tr>
@@ -301,36 +299,47 @@ const Catalogue = () => {
                     <td className="py-2 px-2 sm:px-4">{file.folderName || 'N/A'}</td>
                     <td className="py-2 px-2 sm:px-4 truncate max-w-[150px]" title={file.fileName}>{file.fileName}</td>
                     <td className="py-2 px-2 sm:px-4">{file.category || 'N/A'}</td>
-                    <td
-                      className="py-2 px-2 sm:px-4 max-w-[200px] truncate text-xs sm:text-sm"
-                      title={file.fileType}
-                    >
-                      {file.fileType || 'N/A'}
-                    </td>
+                    <td className="py-2 px-2 sm:px-4 max-w-[150px] truncate" title={file.fileType}>{file.fileType || 'N/A'}</td>
                     <td className="py-2 px-2 sm:px-4">{(file.fileSize / 1024).toFixed(2)}</td>
                     <td className="py-2 px-2 sm:px-4">
                       <div className="flex flex-wrap gap-1 sm:gap-2">
-
-                        <button
-                          onClick={() => navigate('/view-file', { state: { file } })}
-                          className="bg-blue-500 text-white px-2 py-1 rounded"
-                        >
-                          View
-                        </button>
-
-                        <button onClick={() => openRenameModal(file)} className="bg-yellow-500 text-white px-2 py-1 rounded text-xs sm:text-sm hover:bg-yellow-600">Rename</button>
-                        <button onClick={() => handleDownload(file._id, file.fileName)} className="bg-green-600 text-white px-2 py-1 rounded text-xs sm:text-sm hover:bg-green-700">Download</button>
-                        <button onClick={() => handleDelete(file._id)} className="bg-red-600 text-white px-2 py-1 rounded text-xs sm:text-sm hover:bg-red-700">Delete</button>
+                        <button onClick={() => navigate('/view-file', { state: { file } })} className="bg-blue-500 text-white px-2 py-1 rounded text-xs">View</button>
+                        <button onClick={() => openRenameModal(file)} className="bg-yellow-500 text-white px-2 py-1 rounded text-xs hover:bg-yellow-600">Rename</button>
+                        <button onClick={() => handleDownload(file._id, file.fileName)} className="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-700">Download</button>
+                        <button onClick={() => handleDelete(file._id)} className="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700">Delete</button>
                       </div>
                     </td>
                   </tr>
-
                 ))
               )}
             </tbody>
           </table>
         </div>
+
+        {/* 📱 Mobile Card View */}
+        <div className="sm:hidden space-y-4">
+          {filteredFiles.length === 0 ? (
+            <p className="text-center text-gray-500 py-6">No catalogs uploaded yet!</p>
+          ) : (
+            filteredFiles.map((file) => (
+              <div key={file._id} className="border rounded p-4 shadow text-sm bg-white">
+                <p><span className="font-semibold">📁 Folder:</span> {file.folderName || 'N/A'}</p>
+                <p><span className="font-semibold">📄 File:</span> {file.fileName}</p>
+                <p><span className="font-semibold">🏷️ Category:</span> {file.category || 'N/A'}</p>
+                <p><span className="font-semibold">📌 Type:</span> {file.fileType || 'N/A'}</p>
+                <p><span className="font-semibold">📦 Size:</span> {(file.fileSize / 1024).toFixed(2)} KB</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <button onClick={() => navigate('/view-file', { state: { file } })} className="bg-blue-500 text-white px-3 py-1 rounded text-xs">View</button>
+                  <button onClick={() => openRenameModal(file)} className="bg-yellow-500 text-white px-3 py-1 rounded text-xs hover:bg-yellow-600">Rename</button>
+                  <button onClick={() => handleDownload(file._id, file.fileName)} className="bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700">Download</button>
+                  <button onClick={() => handleDelete(file._id)} className="bg-red-600 text-white px-3 py-1 rounded text-xs hover:bg-red-700">Delete</button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
+
 
       {/* Rename Modal */}
       {isRenameModalOpen && (
