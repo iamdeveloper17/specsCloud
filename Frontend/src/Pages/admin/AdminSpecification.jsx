@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const categoryOptions = ['Rehab', 'Critical Care', 'Medical Education', 'Simulation', 'Anatomy', 'Medication'];
 
@@ -16,9 +17,7 @@ const formatFileType = (type = '') => {
 const AdminSpecification = () => {
   const [files, setFiles] = useState([]);
   const [viewCategory, setViewCategory] = useState('All');
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [viewFileUrl, setViewFileUrl] = useState('');
-  const [viewFileType, setViewFileType] = useState('');
+  const navigate = useNavigate();
 
   const fetchAllFiles = async () => {
     try {
@@ -62,10 +61,7 @@ const AdminSpecification = () => {
   };
 
   const handleView = (file) => {
-    const url = `https://specscloud-1.onrender.com/uploads/${file.fileName}`;
-    setViewFileUrl(url);
-    setViewFileType(file.fileType);
-    setIsViewModalOpen(true);
+    navigate('/view-file', { state: { file } });
   };
 
   useEffect(() => {
@@ -125,7 +121,7 @@ const AdminSpecification = () => {
                   <td className="py-2 px-4">{index + 1}</td>
                   <td className="py-2 px-4 max-w-xs truncate" title={file.fileName}>{file.fileName}</td>
                   <td className="py-2 px-4">{file.category || 'N/A'}</td>
-                  <td className="py-2 px-4 max-w-[240px] overflow-hidden text-ellipsis whitespace-nowrap" title={file.fileType}>
+                  <td className="py-2 px-4 max-w-[240px] truncate" title={file.fileType}>
                     {formatFileType(file.fileType)}
                   </td>
                   <td className="py-2 px-4">{(file.fileSize / 1024).toFixed(2)}</td>
@@ -162,49 +158,6 @@ const AdminSpecification = () => {
           ))
         )}
       </div>
-
-      {/* View Modal */}
-      {isViewModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-4 rounded-lg shadow-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">View File</h2>
-              <button
-                onClick={() => {
-                  setIsViewModalOpen(false);
-                  window.URL.revokeObjectURL(viewFileUrl);
-                  setViewFileUrl('');
-                  setViewFileType('');
-                }}
-                className="text-red-500 text-xl font-bold hover:text-red-700"
-              >
-                ×
-              </button>
-            </div>
-
-            {viewFileType.startsWith('image/') && (
-              <img src={viewFileUrl} alt="file" className="w-full h-auto" />
-            )}
-            {viewFileType === 'application/pdf' && (
-              <iframe src={viewFileUrl} title="PDF Viewer" className="w-full h-[80vh]" />
-            )}
-            {(viewFileType.includes('word') || viewFileType.includes('presentation') || viewFileType.includes('excel')) && (
-              <iframe
-                src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(viewFileUrl)}`}
-                title="Office File Viewer"
-                className="w-full h-[80vh]"
-              />
-            )}
-            {!viewFileType.startsWith('image/') &&
-              viewFileType !== 'application/pdf' &&
-              !viewFileType.includes('word') &&
-              !viewFileType.includes('presentation') &&
-              !viewFileType.includes('excel') && (
-                <p className="text-center text-gray-500">Preview not available. Please download the file to view it.</p>
-              )}
-          </div>
-        </div>
-      )}
     </div>
   );
 };

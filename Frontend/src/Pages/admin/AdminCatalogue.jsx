@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const categoryOptions = ['Rehab', 'Critical Care', 'Medical Education', 'Simulation', 'Anatomy', 'Medication'];
 
@@ -16,9 +17,7 @@ const formatFileType = (type = '') => {
 const AdminCatalogue = () => {
   const [files, setFiles] = useState([]);
   const [viewCategory, setViewCategory] = useState('All');
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [viewFileUrl, setViewFileUrl] = useState('');
-  const [viewFileType, setViewFileType] = useState('');
+  const navigate = useNavigate();
 
   const fetchAllFiles = async () => {
     try {
@@ -30,24 +29,29 @@ const AdminCatalogue = () => {
     }
   };
 
-  const handleDownload = async (id, name) => {
+  const handleDownload = async (id, fileName) => {
     try {
       const res = await axios.get(`https://specscloud-1.onrender.com/api/catalogue/download/${id}`, {
         responseType: 'blob',
       });
-      const url = window.URL.createObjectURL(new Blob([res.data]));
+
+      const blob = new Blob([res.data]);
+      const url = window.URL.createObjectURL(blob);
+
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', name);
+      link.setAttribute('download', fileName);
       document.body.appendChild(link);
       link.click();
       link.remove();
+      window.URL.revokeObjectURL(url);
       toast.success('Download started');
     } catch (error) {
-      console.error(error.message);
+      console.error('Download error:', error);
       toast.error('Download failed');
     }
   };
+
 
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this file?')) return;
@@ -62,10 +66,7 @@ const AdminCatalogue = () => {
   };
 
   const handleView = (file) => {
-    const fileUrl = `https://specscloud-1.onrender.com/uploads/${file.fileName}`;
-    setViewFileUrl(fileUrl);
-    setViewFileType(file.fileType);
-    setIsViewModalOpen(true);
+    navigate('/view-file', { state: { file } });
   };
 
   useEffect(() => {
@@ -103,6 +104,7 @@ const AdminCatalogue = () => {
           <thead className="bg-indigo-600 text-white sticky top-0 z-10">
             <tr>
               <th className="py-2 px-4 text-left">S no.</th>
+              <th className="py-2 px-4 text-left">Folder</th>
               <th className="py-2 px-4 text-left">File Name</th>
               <th className="py-2 px-4 text-left">Category</th>
               <th className="py-2 px-4 text-left">Type</th>
@@ -110,32 +112,34 @@ const AdminCatalogue = () => {
               <th className="py-2 px-4 text-left">Actions</th>
             </tr>
           </thead>
+
           <tbody>
             {filteredFiles.length === 0 ? (
               <tr>
-                <td colSpan="5" className="py-6 text-center text-gray-500">
+                <td colSpan="6" className="py-6 text-center text-gray-500">
                   No catalogs uploaded yet!
                 </td>
               </tr>
             ) : (
               filteredFiles.map((file, index) => (
-                <tr key={file._id} className="border-b">
-                  <td className="py-2 px-4">{index+1}</td>
-                  <td className="py-2 px-4 truncate max-w-xs" title={file.fileName}>{file.fileName}</td>
+                <tr key={file._id} className="border-b hover:bg-gray-50">
+                  <td className="py-2 px-4">{index + 1}</td>
+                  <td className="py-2 px-4 break-all text-sm text-gray-800">{file.folderName || 'N/A'}</td>
+                  <td className="py-2 px-4 max-w-[200px] truncate text-sm text-gray-700" title={file.fileName}>
+                    {file.fileName}
+                  </td>
                   <td className="py-2 px-4">{file.category || 'N/A'}</td>
-                  <td
-                    className="py-2 px-4 max-w-[240px] overflow-hidden text-ellipsis whitespace-nowrap"
-                    title={file.fileType}
-                  >
+                  <td className="py-2 px-4 max-w-[240px] truncate" title={file.fileType}>
                     {formatFileType(file.fileType)}
                   </td>
                   <td className="py-2 px-4">{(file.fileSize / 1024).toFixed(2)}</td>
                   <td className="py-2 px-4 flex flex-col sm:flex-row gap-1 sm:gap-2">
                     <button onClick={() => handleView(file)} className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-xs">View</button>
-                    <button onClick={() => handleDownload(file._id, file.fileName)} className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-xs">Download</button>
+                    <button onClick={() => handleDownload(file._id, file.fileName)} className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 text-xs">Download</button>
                     <button onClick={() => handleDelete(file._id)} className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-xs">Delete</button>
                   </td>
                 </tr>
+
               ))
             )}
           </tbody>
@@ -149,53 +153,21 @@ const AdminCatalogue = () => {
         ) : (
           filteredFiles.map((file) => (
             <div key={file._id} className="border rounded p-4 shadow text-sm bg-white">
-              <p><span className="font-semibold">📄 File:</span> {file.fileName}</p>
-              <p><span className="font-semibold">🏷️ Category:</span> {file.category || 'N/A'}</p>
-              <p><span className="font-semibold">📌 Type:</span> {formatFileType(file.fileType)}</p>
-              <p><span className="font-semibold">📦 Size:</span> {(file.fileSize / 1024).toFixed(2)} KB</p>
+              <p><strong>📁 Folder:</strong> {file.folderName || 'N/A'}</p>
+              <p><strong>📄 File:</strong> {file.fileName}</p>
+              <p><strong>🏷️ Category:</strong> {file.category || 'N/A'}</p>
+              <p><strong>📌 Type:</strong> {formatFileType(file.fileType)}</p>
+              <p><strong>📦 Size:</strong> {(file.fileSize / 1024).toFixed(2)} KB</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 <button onClick={() => handleView(file)} className="bg-blue-500 text-white px-3 py-1 rounded text-xs">View</button>
                 <button onClick={() => handleDownload(file._id, file.fileName)} className="bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700">Download</button>
                 <button onClick={() => handleDelete(file._id)} className="bg-red-600 text-white px-3 py-1 rounded text-xs hover:bg-red-700">Delete</button>
               </div>
             </div>
+
           ))
         )}
       </div>
-
-      {/* View Modal */}
-      {isViewModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-4 rounded-lg shadow-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">View File</h2>
-              <button onClick={() => {
-                setIsViewModalOpen(false);
-                window.URL.revokeObjectURL(viewFileUrl);
-                setViewFileUrl('');
-                setViewFileType('');
-              }} className="text-red-500 text-xl font-bold hover:text-red-700">×</button>
-            </div>
-
-            {viewFileType.startsWith('image/') && (
-              <img src={viewFileUrl} alt="file" className="w-full h-auto" />
-            )}
-            {viewFileType === 'application/pdf' && (
-              <iframe src={viewFileUrl} title="PDF Viewer" type="application/pdf" className="w-full h-[80vh]" />
-            )}
-            {(viewFileType.includes('word') || viewFileType.includes('presentation') || viewFileType.includes('excel')) && (
-              <iframe
-                src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(viewFileUrl)}`}
-                title="Office File Viewer"
-                className="w-full h-[80vh]"
-              />
-            )}
-            {!viewFileType.startsWith('image/') && viewFileType !== 'application/pdf' && !viewFileType.includes('word') && !viewFileType.includes('presentation') && !viewFileType.includes('excel') && (
-              <p className="text-center text-gray-500">Preview not available. Please download the file to view it.</p>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 };

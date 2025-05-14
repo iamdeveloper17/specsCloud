@@ -3,6 +3,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { FaChevronRight, FaChevronDown } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 const AdminFolderList = () => {
   const [folders, setFolders] = useState([]);
@@ -11,6 +12,7 @@ const AdminFolderList = () => {
   const [renameFileId, setRenameFileId] = useState(null);
   const [renameFileName, setRenameFileName] = useState('');
   const [renameFileSource, setRenameFileSource] = useState('');
+  const navigate = useNavigate();
 
   const fetchFolders = async () => {
     try {
@@ -57,23 +59,9 @@ const AdminFolderList = () => {
     );
   };
 
-  const handleViewFile = file => {
-    const publicUrl = `https://specscloud-1.onrender.com/uploads/${file.fileName}`;
-    const ext = file.fileName.split('.').pop().toLowerCase();
-
-    if (["doc", "docx", "ppt", "pptx", "xls", "xlsx"].includes(ext)) {
-      window.open(`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(publicUrl)}`, '_blank');
-    } else if (ext === 'pdf' || file.fileType?.startsWith('image/')) {
-      window.open(publicUrl, '_blank');
-    } else {
-      const link = document.createElement('a');
-      link.href = publicUrl;
-      link.setAttribute('download', file.fileName);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    }
-  };
+const handleViewFile = (file) => {
+  navigate('/view-file', { state: { file } });
+};
 
   const handleDownloadFile = async file => {
     const baseApi = file.source === 'specification' ? 'specification' : 'catalogue';
@@ -181,7 +169,10 @@ const AdminFolderList = () => {
                                   </div>
                                 </div>
                                 <div className="flex flex-wrap items-center gap-2 mt-2 sm:mt-0">
-                                  <button onClick={() => handleViewFile(file)} className="bg-blue-500 text-white px-3 py-1 rounded text-xs sm:text-sm hover:bg-blue-600 transition">View</button>
+                                  <button onClick={() => handleViewFile(file)} className="bg-blue-500 text-white px-3 py-1 rounded text-xs sm:text-sm hover:bg-blue-600 transition">
+  View
+</button>
+
                                   <button onClick={() => openRenameModal(file)} className="bg-yellow-500 text-white px-3 py-1 rounded text-xs hover:bg-yellow-600">Rename</button>
                                   <button onClick={() => handleDownloadFile(file)} className="bg-green-500 text-white px-3 py-1 rounded text-xs hover:bg-green-600">Download</button>
                                   <button onClick={() => handleDeleteFile(file)} className="bg-red-600 text-white px-3 py-1 rounded text-xs hover:bg-red-700">Delete</button>

@@ -36,13 +36,13 @@ router.get('/download/:id', async (req, res) => {
     if (!file) return res.status(404).json({ message: 'File not found' });
 
     const filePath = path.join(__dirname, '../uploads', file.fileName);
-    res.download(filePath, file.fileName); // stream the real file
-
+    res.download(filePath, file.fileName);
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ message: 'Download failed' });
   }
 });
+
 
 // Delete File
 router.delete('/delete/:id', async (req, res) => {
