@@ -38,10 +38,13 @@ const AdminFolderList = () => {
         mergedFolders[folder._id].files.push(...folder.files.map(file => ({ ...file, source: 'specification' })));
       });
 
-      const finalFolders = Object.values(mergedFolders).map(folder => ({
-        ...folder,
-        fileCount: folder.files.length,
-      }));
+      const finalFolders = Object.values(mergedFolders)
+        .filter(folder => folder._id !== 'No Folder') // ✅ remove exactly "No Folder"
+        .map(folder => ({
+          ...folder,
+          fileCount: folder.files.length,
+        }));
+
 
       setFolders(finalFolders);
     } catch (error) {
@@ -105,12 +108,17 @@ const AdminFolderList = () => {
   };
 
   const handleRenameSubmit = async () => {
-    if (!renameFileName.trim()) return toast.error('File name cannot be empty');
+    if (!renameFileName.trim()) return toast.error('Name cannot be empty');
     try {
-      await axios.put(`https://specscloud-1.onrender.com/api/${renameFileSource}/rename/${renameFileId}`, {
+      const endpoint = renameFileId.length === 24 // ID length check for file/folder distinction
+        ? `/${renameFileSource}/rename/${renameFileId}` // file
+        : `/${renameFileSource}/rename-folder/${renameFileId}`; // folder
+
+      await axios.put(`https://specscloud-1.onrender.com/api${endpoint}`, {
         newName: renameFileName,
       });
-      toast.success('File renamed successfully');
+
+      toast.success('Renamed successfully');
       setIsRenameModalOpen(false);
       fetchFolders();
     } catch (error) {
@@ -118,6 +126,7 @@ const AdminFolderList = () => {
       toast.error('Rename failed');
     }
   };
+
 
   return (
     <div className="p-4 sm:p-6 max-w-6xl mx-auto bg-white shadow-md rounded-lg mt-0 sm:mt-6">
@@ -131,6 +140,7 @@ const AdminFolderList = () => {
                 <th className="py-2 px-4 text-left">Number of Files</th>
                 <th className="py-2 px-4 text-left">Actions</th>
               </tr>
+
             </thead>
             <tbody>
               {folders.length === 0 ? (
@@ -150,8 +160,38 @@ const AdminFolderList = () => {
                         </div>
                       </td>
                       <td className="py-2 px-4">{folder.fileCount}</td>
-                      <td className="py-2 px-4"></td>
+                      <td className="py-2 px-4 space-x-2">
+                        <button
+                          onClick={() => {
+                            setRenameFileId(folder._id);
+                            setRenameFileName(folder._id);
+                            setRenameFileSource(folder.files[0]?.source || 'catalogue'); // fallback
+                            setIsRenameModalOpen(true);
+                          }}
+                          className="bg-yellow-500 text-white px-2 py-1 rounded text-xs hover:bg-yellow-600"
+                        >
+                          Rename
+                        </button>
+                        <button
+                          onClick={async () => {
+                            if (!window.confirm(`Are you sure you want to delete folder ${folder._id}?`)) return;
+                            try {
+                              const source = folder.files[0]?.source || 'catalogue';
+                              await axios.delete(`https://specscloud-1.onrender.com/api/${source}/delete-folder/${folder._id}`);
+                              toast.success('Folder deleted successfully');
+                              fetchFolders();
+                            } catch (err) {
+                              toast.error('Delete failed');
+                              console.error(err);
+                            }
+                          }}
+                          className="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700"
+                        >
+                          Delete
+                        </button>
+                      </td>
                     </tr>
+
                     {expandedFolders.includes(folder._id) && (
                       <tr>
                         <td colSpan="3" className="bg-gray-50">
@@ -163,7 +203,13 @@ const AdminFolderList = () => {
                               >
                                 <div className="flex flex-col">
                                   <div className="break-words max-w-full w-full">
-                                    <span className="font-medium text-gray-700 break-all">{file.fileName}</span>
+                                    <span
+                                      className="font-medium text-gray-700 truncate max-w-[350px] block"
+                                      title={file.fileName}
+                                    >
+                                      {file.fileName}
+                                    </span>
+
                                   </div>
                                   <div className="text-xs text-gray-500">
                                     Type: <span className="font-semibold">{file.source || 'Catalogue'}</span> | Category: <span className="font-semibold">{file.category || 'N/A'}</span>

@@ -27,6 +27,15 @@ const Catalogue = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const folderInputRef = useRef(null);
 
+  const formatFileType = (type = '') => {
+  if (type.includes('word')) return 'Word Document';
+  if (type.includes('presentation')) return 'PowerPoint';
+  if (type.includes('spreadsheet')) return 'Excel Sheet';
+  if (type.includes('pdf')) return 'PDF';
+  if (type.includes('image')) return 'Image';
+  return type;
+};
+
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -46,15 +55,25 @@ const Catalogue = () => {
     fetchFolderSuggestions();
   }, []);
 
-  const fetchFolderSuggestions = async () => {
-    try {
-      const res = await axios.get('https://specscloud-1.onrender.com/api/catalogue/folder-names');
-      setFolderSuggestions(res.data || []);
-    } catch (error) {
-      console.error('Failed to fetch folder suggestions:', error.message);
-    }
-  };
+const fetchFolderSuggestions = async () => {
+  try {
+    const [catalogueRes, specRes] = await Promise.all([
+      axios.get('https://specscloud-1.onrender.com/api/catalogue/folder-names'),
+      axios.get('https://specscloud-1.onrender.com/api/specification/folder-names')
+    ]);
 
+    // Combine and deduplicate folder names
+    const allFolders = [
+      ...(catalogueRes.data || []),
+      ...(specRes.data || [])
+    ];
+
+    const uniqueFolders = Array.from(new Set(allFolders));
+    setFolderSuggestions(uniqueFolders);
+  } catch (error) {
+    console.error('Failed to fetch folder suggestions:', error.message);
+  }
+};
 
   const fetchFiles = async () => {
     const userId = localStorage.getItem('userId');
@@ -299,7 +318,9 @@ const Catalogue = () => {
                     <td className="py-2 px-2 sm:px-4">{file.folderName || 'N/A'}</td>
                     <td className="py-2 px-2 sm:px-4 truncate max-w-[150px]" title={file.fileName}>{file.fileName}</td>
                     <td className="py-2 px-2 sm:px-4">{file.category || 'N/A'}</td>
-                    <td className="py-2 px-2 sm:px-4 max-w-[150px] truncate" title={file.fileType}>{file.fileType || 'N/A'}</td>
+<td className="py-2 px-2 sm:px-4 max-w-[150px] truncate" title={file.fileType}>
+  {formatFileType(file.fileType) || 'N/A'}
+</td>
                     <td className="py-2 px-2 sm:px-4">{(file.fileSize / 1024).toFixed(2)}</td>
                     <td className="py-2 px-2 sm:px-4">
                       <div className="flex flex-wrap gap-1 sm:gap-2">
@@ -326,7 +347,7 @@ const Catalogue = () => {
                 <p><span className="font-semibold">📁 Folder:</span> {file.folderName || 'N/A'}</p>
                 <p><span className="font-semibold">📄 File:</span> {file.fileName}</p>
                 <p><span className="font-semibold">🏷️ Category:</span> {file.category || 'N/A'}</p>
-                <p><span className="font-semibold">📌 Type:</span> {file.fileType || 'N/A'}</p>
+<p><span className="font-semibold">📌 Type:</span> {formatFileType(file.fileType) || 'N/A'}</p>
                 <p><span className="font-semibold">📦 Size:</span> {(file.fileSize / 1024).toFixed(2)} KB</p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   <button onClick={() => navigate('/view-file', { state: { file } })} className="bg-blue-500 text-white px-3 py-1 rounded text-xs">View</button>
