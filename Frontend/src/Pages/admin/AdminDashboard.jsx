@@ -2,7 +2,7 @@ import React from "react";
 
 const AdminDashboard = () => {
   return (
-    <div className="p-6 sm:p-10 min-h-[100vh]">
+    <div className="p-6 sm:p-10">
       {/* Page Title */}
       <h2 className="text-4xl font-extrabold text-indigo-800 mb-8 text-center">
         Admin Dashboard

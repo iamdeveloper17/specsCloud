@@ -11,7 +11,7 @@ const Sidebar = ({ onClose }) => {
     { name: 'Dashboard', icon: <FaHome />, path: '/dashboard' },
     { name: 'Catalogue', icon: <FaFolderOpen />, path: '/catalogue' },
     { name: 'Specification', icon: <FaFileAlt />, path: '/specification' },
-    { name: 'Folder', icon: <FaFolder />, path: '/folder' },
+    // { name: 'Folder', icon: <FaFolder />, path: '/folder' },
   ];
 
   const handleLogout = () => {

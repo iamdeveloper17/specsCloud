@@ -46,7 +46,7 @@ const App = () => {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="catalogue" element={<Catalogue />} />
           <Route path="specification" element={<Specification />} />
-          <Route path="folder" element={<FolderList />} />
+          {/* <Route path="folder" element={<FolderList />} /> */}
 
         </Route>
         <Route path="/view-file" element={<FileViewer />} />

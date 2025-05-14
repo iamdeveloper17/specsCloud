@@ -10,7 +10,7 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 p-4 sm:p-6 md:p-10 flex flex-col items-center">
+    <div className="bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 p-4 sm:p-6 md:p-10 flex flex-col items-center">
       
       {/* Page Title */}
       <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-indigo-800 mb-4 text-center">
