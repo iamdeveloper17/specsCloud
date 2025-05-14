@@ -26,8 +26,8 @@ router.get('/files', async (req, res) => {
   const { userId } = req.query;
   try {
     const files = userId
-      ? await specification.find({ uploadedById: userId }, 'fileName fileType fileSize category folderName')
-      : await specification.find({}, 'fileName fileType fileSize category folderName');
+      ? await specification.find({ uploadedById: userId }, 'fileName fileType fileSize category folderName _id')
+      : await specification.find({}, 'fileName fileType fileSize category folderName _id');
     res.status(200).json(files);
   } catch (error) {
     console.error(error.message);
@@ -82,12 +82,15 @@ router.put('/rename/:id', async (req, res) => {
 // 📂 Get list of folders + file names inside each folder
 // 📂 GET folders - Specification files
 router.get('/folders', async (req, res) => {
+  const { userId, isAdmin } = req.query;
+
   try {
-    const specificationFiles = await specification.find({}, 'fileName fileType fileSize folderName category');
+    const query = isAdmin === 'true' ? {} : { uploadedById: userId };
+    const files = await specification.find(query, 'fileName fileType fileSize folderName category uploadedById');
 
     const grouped = {};
 
-    specificationFiles.forEach(file => {
+    files.forEach(file => {
       const folder = file.folderName || 'No Folder';
       if (!grouped[folder]) {
         grouped[folder] = [];
@@ -97,7 +100,7 @@ router.get('/folders', async (req, res) => {
         fileName: file.fileName,
         fileType: file.fileType,
         category: file.category,
-        type: 'Specification', // ✅ important
+        type: 'Specification',
       });
     });
 
@@ -113,6 +116,7 @@ router.get('/folders', async (req, res) => {
     res.status(500).json({ message: 'Fetching folders failed' });
   }
 });
+
 
 // Rename a folder
 router.put('/folders/:folderName', async (req, res) => {

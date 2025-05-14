@@ -77,22 +77,25 @@ router.put('/rename/:id', async (req, res) => {
 
 // Final 🛠 Merge Folders Route
 router.get('/folders', async (req, res) => {
+  const { userId, isAdmin } = req.query;
+
   try {
-    const catalogueFiles = await Catalogue.find({}, 'fileName fileType fileSize folderName category');
+    const query = isAdmin === 'true' ? {} : { uploadedById: userId };
+    const files = await Catalogue.find(query, 'fileName fileType fileSize folderName category uploadedById');
 
     const grouped = {};
 
-    catalogueFiles.forEach(file => {
+    files.forEach(file => {
       const folder = file.folderName || 'No Folder';
       if (!grouped[folder]) {
         grouped[folder] = [];
       }
       grouped[folder].push({
-        _id: file._id,               // ✅ Correctly push id
-        fileName: file.fileName,      // ✅ Correctly push fileName
-        fileType: file.fileType,      // ✅ Push fileType also
-        category: file.category,      // ✅ Push category
-        type: 'Catalogue',            // ✅ Tell that this is catalogue file
+        _id: file._id,
+        fileName: file.fileName,
+        fileType: file.fileType,
+        category: file.category,
+        type: 'Catalogue',
       });
     });
 
@@ -104,12 +107,13 @@ router.get('/folders', async (req, res) => {
 
     res.status(200).json(folders);
   } catch (error) {
-    console.error(error.message);
+    console.error('Fetching folders failed:', error.message);
     res.status(500).json({ message: 'Fetching folders failed' });
   }
 });
 
-// In routes/catalogue.js or specification.js
+
+// In routes/catalogue.js or Catalogue.js
 router.get('/file-url/:id', async (req, res) => {
   try {
     const file = await Catalogue.findById(req.params.id);

@@ -13,15 +13,21 @@ const FolderList = () => {
     const [renameFileId, setRenameFileId] = useState(null);
     const [renameFileName, setRenameFileName] = useState('');
     const [renameFileSource, setRenameFileSource] = useState(''); // 'catalogue' or 'specification'
+      const userId = localStorage.getItem('userId');
+  const isAdmin = localStorage.getItem('isAdmin');
 
 
     // 🛠 Fetch BOTH catalogue and specification folders
     const fetchFolders = async () => {
-        try {
-            const [catalogueRes, specificationRes] = await Promise.all([
-                axios.get('https://specscloud-1.onrender.com/api/catalogue/folders'),
-                axios.get('https://specscloud-1.onrender.com/api/specification/folders')
-            ]);
+     try {
+    const [catalogueRes, specificationRes] = await Promise.all([
+      axios.get('https://specscloud-1.onrender.com/api/catalogue/folders', {
+        params: { userId, isAdmin }
+      }),
+      axios.get('https://specscloud-1.onrender.com/api/specification/folders', {
+        params: { userId, isAdmin }
+      })
+    ]);
 
             const mergedFolders = {};
 
