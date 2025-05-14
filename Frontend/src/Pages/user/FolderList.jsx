@@ -13,38 +13,52 @@ const FolderList = () => {
     const [renameFileId, setRenameFileId] = useState(null);
     const [renameFileName, setRenameFileName] = useState('');
     const [renameFileSource, setRenameFileSource] = useState(''); // 'catalogue' or 'specification'
-      const userId = localStorage.getItem('userId');
-  const isAdmin = localStorage.getItem('isAdmin');
+    const userId = localStorage.getItem('userId');
+    const isAdmin = localStorage.getItem('isAdmin');
 
 
     // 🛠 Fetch BOTH catalogue and specification folders
     const fetchFolders = async () => {
-     try {
-    const [catalogueRes, specificationRes] = await Promise.all([
-      axios.get('https://specscloud-1.onrender.com/api/catalogue/folders', {
-        params: { userId, isAdmin }
-      }),
-      axios.get('https://specscloud-1.onrender.com/api/specification/folders', {
-        params: { userId, isAdmin }
-      })
-    ]);
+        try {
+            const [catalogueRes, specificationRes] = await Promise.all([
+                axios.get('https://specscloud-1.onrender.com/api/catalogue/folders', {
+                    params: { userId, isAdmin }
+                }),
+                axios.get('https://specscloud-1.onrender.com/api/specification/folders', {
+                    params: { userId, isAdmin }
+                })
+            ]);
 
             const mergedFolders = {};
+            const currentUserId = localStorage.getItem('userId');
+            const adminMode = localStorage.getItem('isAdmin') === 'true';
 
-            // 📂 Merge catalogue files
+            // 📂 Merge catalogue files (filter non-admins)
             catalogueRes.data.forEach(folder => {
-                if (!mergedFolders[folder._id]) {
-                    mergedFolders[folder._id] = { ...folder, files: [] };
+                const filteredFiles = adminMode
+                    ? folder.files
+                    : folder.files.filter(file => file.uploadedById === currentUserId);
+
+                if (filteredFiles.length > 0) {
+                    if (!mergedFolders[folder._id]) {
+                        mergedFolders[folder._id] = { _id: folder._id, files: [] };
+                    }
+                    mergedFolders[folder._id].files.push(...filteredFiles.map(file => ({ ...file, source: 'catalogue' })));
                 }
-                mergedFolders[folder._id].files.push(...folder.files.map(file => ({ ...file, source: 'catalogue' })));
             });
 
-            // 📂 Merge specification files
+            // 📂 Merge specification files (filter non-admins)
             specificationRes.data.forEach(folder => {
-                if (!mergedFolders[folder._id]) {
-                    mergedFolders[folder._id] = { _id: folder._id, fileCount: 0, files: [] };
+                const filteredFiles = adminMode
+                    ? folder.files
+                    : folder.files.filter(file => file.uploadedById === currentUserId);
+
+                if (filteredFiles.length > 0) {
+                    if (!mergedFolders[folder._id]) {
+                        mergedFolders[folder._id] = { _id: folder._id, files: [] };
+                    }
+                    mergedFolders[folder._id].files.push(...filteredFiles.map(file => ({ ...file, source: 'specification' })));
                 }
-                mergedFolders[folder._id].files.push(...folder.files.map(file => ({ ...file, source: 'specification' })));
             });
 
             // 🧹 Clean fileCount

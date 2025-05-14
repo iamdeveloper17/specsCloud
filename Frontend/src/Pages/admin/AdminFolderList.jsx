@@ -17,9 +17,10 @@ const AdminFolderList = () => {
   const fetchFolders = async () => {
     try {
       const [catalogueRes, specificationRes] = await Promise.all([
-        axios.get('https://specscloud-1.onrender.com/api/catalogue/folders'),
-        axios.get('https://specscloud-1.onrender.com/api/specification/folders'),
+        axios.get('https://specscloud-1.onrender.com/api/catalogue/folders', { params: { isAdmin: true } }),
+        axios.get('https://specscloud-1.onrender.com/api/specification/folders', { params: { isAdmin: true } })
       ]);
+
 
       const mergedFolders = {};
 
@@ -59,9 +60,9 @@ const AdminFolderList = () => {
     );
   };
 
-const handleViewFile = (file) => {
-  navigate('/view-file', { state: { file } });
-};
+  const handleViewFile = (file) => {
+    navigate('/view-file', { state: { file } });
+  };
 
   const handleDownloadFile = async file => {
     const baseApi = file.source === 'specification' ? 'specification' : 'catalogue';
@@ -170,8 +171,8 @@ const handleViewFile = (file) => {
                                 </div>
                                 <div className="flex flex-wrap items-center gap-2 mt-2 sm:mt-0">
                                   <button onClick={() => handleViewFile(file)} className="bg-blue-500 text-white px-3 py-1 rounded text-xs sm:text-sm hover:bg-blue-600 transition">
-  View
-</button>
+                                    View
+                                  </button>
 
                                   <button onClick={() => openRenameModal(file)} className="bg-yellow-500 text-white px-3 py-1 rounded text-xs hover:bg-yellow-600">Rename</button>
                                   <button onClick={() => handleDownloadFile(file)} className="bg-green-500 text-white px-3 py-1 rounded text-xs hover:bg-green-600">Download</button>
